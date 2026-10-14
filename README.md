@@ -26,6 +26,10 @@ No hardware validation is inferred from successful builds or emulator tests.
 **Software:** MAX reproduced the same image hash; 281 SyntHack tests passed
 (1 skipped), plus Workbench Deja Vu, wave, DSP and graphics checks. Full evidence,
 memory findings and limitations are in [the MAX report](tools/max/README.md).
+The MAX2 compatibility overlay passed 288 tests (3 skipped), preserves the MAX
+wave/LFO bytes, and reproduced its validation image hash. See
+[the MAX2 report](tools/max2/README.md) for parameter isolation, memory limits,
+FM4 blockers and unverified storage/hardware behavior.
 
 **Research:** SY FM4 is blocked on missing implementation source; the public
 [proposal](https://github.com/Angelo-politek/Synthack-OS/issues/1) describes a
