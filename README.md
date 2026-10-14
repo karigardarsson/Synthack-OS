@@ -1,71 +1,51 @@
-# SyntHack OS
+# Syntakt MAX
 
-Unofficial, modular firmware mods for the **Elektron Syntakt** (OS 1.41).
-Each mod is a small patch applied to the stock OS you download from elektron.se — no firmware is distributed here.
+A hobby/community fork of [SyntHack OS](https://github.com/Angelo-politek/Synthack-OS)
+for Elektron Syntakt **OS 1.41**, combining its mods with
+[Firmware Workbench](https://github.com/Bezronczek/syntakt-firmware-workbench).
+This repository publishes source, build tools and technical notes. Supply your
+own official firmware locally; no firmware images or extracted firmware are distributed.
 
-> **Not affiliated with Elektron.** Modified firmware can make your device unusable and may void your warranty.
-> Learn the [recovery procedure](RECOVERY.md) before flashing. Use at your own risk.
+## Implemented
 
-**Status:** `v0.8.0` — seven mods running on real hardware.
+- Master compressor, third send FX (chorus/flanger/phaser/crusher), beat repeat,
+  dual mono input, readable parameter values and the SyntHack splash.
+- Deja Vu **DV-F / DV-T** LFO shapes, loop controls, labels and icons.
+- **31 SY CHORD waves** with screen graphics: saw, pulse, harmonic, synthetic
+  and chord textures. Shared WAVE 0 remains stock.
+- Guarded builds from verified stock, patch overlap checks, protected-section
+  checks, firmware integrity validation and emulator tests.
 
-## Features
+## Evidence and current research
 
-| Feature | Status | What it does |
-|---|---|---|
-| [Master compressor](mods/master-comp) | ✅ v0.5.0 | Bus compressor on the **analog master** (via the master VCAs). Digitakt-style curves. THR · ATK · REL · MUP · RAT + gain-reduction meter + ON/OFF switch on the FX track SYN page, values in dB / ms / ratio. Saved per pattern, or global with *SYN global*. |
-| [Dual mono input](mods/dual-mono) | ✅ v0.5.0 | With EXTERNAL IN set to mono, **IN L** and **IN R** get independent levels on the External Mixer page. |
-| [Boot splash](mods/splash) | ✅ v0.8.0 | "SyntHack" logo and version after the official intro. Boot time unchanged. |
-| [Mod area](mods/modarea) | ✅ infra | 64 KB of RAM for mod code, stored compressed and unpacked at boot. |
-| [Readable parameter values](mods/readable-values) | ✅ v0.5.0 | Hz, dB, ms and % instead of 0–127: filters, envelopes, levels, sends, delay and reverb, on every track and the FX track. Computed from the same data the DSP uses; analog parts measured on the device. |
-| [Beat repeat](mods/beat-repeat) | ✅ v0.6.0 | Sequencer stutter on **all tracks** (analog too): hold retrig keys 13/14 on the FX track to loop the last 1/16 … 1 bar (rates RPT1/RPT2 on the TRIG page, saved with the kit) and resume in time. |
-| [Third send FX](mods/fx3) | ✅ v0.8.0 | **SND3** on every track (AMP page 1, next to DEL and REV; PAN moves to page 2) into a **chorus, flanger, phaser or crusher**, with its own page (REVERB tab, page 2) saved with the kit, independent return level and a send into the delay. |
-| PIN lock | ⬜ planned | Optional PIN at power-on, as a theft deterrent. Recovery via OS reflash stays possible. |
-| Dual mono v2 | ⬜ planned | Separate IN L / IN R pages with their own FX sends. |
-| New LFO shapes · 3rd LFO / mod matrix | ⬜ planned | |
-| Arpeggiator · Euclidean circle UI | ⬜ planned | |
-| Resampling to SP TWINSHOT · advanced sampler | ⬜ planned | |
-| New machines: RISER / DOWNFILTER, SY SWARM+ | ⬜ planned | Requires custom audio-engine code (CPU #2). |
-| Web builder | ⬜ planned | Pick mods in the browser, build your `.syx` locally. |
+**Hardware:** upstream authors report device testing of the existing SyntHack
+mods and Workbench patch methods. Our combined MAX image, this particular wave
+bank and MAX2 compatibility changes have **not been hardware-qualified**.
+No hardware validation is inferred from successful builds or emulator tests.
 
-## Roadmap
+**Software:** MAX reproduced the same image hash; 281 SyntHack tests passed
+(1 skipped), plus Workbench Deja Vu, wave, DSP and graphics checks. Full evidence,
+memory findings and limitations are in [the MAX report](tools/max/README.md).
 
-```mermaid
-flowchart LR
-  A["Foundations ✅<br/>unpack/repack · emulator<br/>build tool · recovery"] --> B["First mods ✅<br/>splash · dual mono<br/>master compressor"]
-  B --> C["UI & usability<br/>readable values ✅ · PIN lock<br/>dual mono v2"]
-  C --> D["FX & performance<br/>beat repeat ✅ · third send FX ✅<br/>arp · euclidean UI · LFOs"]
-  D --> E["Engine mods<br/>new machines · sampler<br/>resampling"]
-  B -.-> W["Web builder"]
-```
+**Research:** SY FM4 is blocked on missing implementation source; the public
+[proposal](https://github.com/Angelo-politek/Synthack-OS/issues/1) describes a
+hardware-tested OS 1.40A engine but does not supply it. Twinshot exception
+investigation is deferred; its failed transfer is a possible trigger, not a
+confirmed cause. MAX parameter-ID compatibility work is on the separate
+[`syntakt-max2-compat` branch](https://github.com/karigardarsson/Synthack-OS/tree/syntakt-max2-compat).
 
-## How it works
+## Branches and building
 
-- `tools/unpack` — unpack/repack the `.syx` (wraps [elektron-firmware-tool](https://github.com/mischa85/elektron-firmware-tool)).
-- `mods/<name>/patch.json` — *where* to patch, a hash of the expected original bytes, and **our** new bytes.
-- `tools/build/build.py` — stock OS + chosen mods → verified `.syx` (refuses wrong OS, overlaps, protected sections).
-- `tools/emu` — ColdFire emulator (Unicorn + our EMAC model). Every mod is tested against the original code before flashing.
+- **`syntakt-max`**: combined MAX source and build report.
+- **`syntakt-max2-compat`**: MAX plus experimental MIDI/FX3, compressor and
+  beat-repeat parameter isolation. It contains no FM4 and is not a
+  maintenance-only flash recommendation.
+- **`main`**: retained upstream baseline.
 
-Technical findings: [docs/](docs). Writing your own mod: [docs/modding-guide.md](docs/modding-guide.md).
+See [MAX build instructions](tools/max/README.md#preparing-a-source-checkout).
+Generated files stay local under ignored `out/`. Enable the existing commit
+guard with `git config core.hooksPath tools/hooks`.
 
-## Build your OS
-
-Requires Python 3, WSL/Linux and your own `Syntakt_OS1.41.syx` (see [firmware/README.md](firmware/README.md)).
-
-```sh
-bash tools/unpack/setup_eft.sh                 # once (WSL/Linux)
-git config core.hooksPath tools/hooks          # once: blocks firmware files from commits
-python tools/build/build.py --stock firmware/Syntakt_OS1.41.syx \
-    mods/splash mods/dual-mono mods/modarea mods/vparams mods/master-comp mods/readable-values mods/beat-repeat \
-    mods/fx3 -o out/synthack.syx
-```
-
-Flash `out/synthack.syx` with Elektron Transfer (USB, *Drop* page). To go back, flash the stock OS the same way.
-
-## Contributing
-
-Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
-Please don't post mods or instructions on Elektronauts (forbidden there); use GitHub.
-
-## License
-
-MIT for everything in this repository ([LICENSE](LICENSE)). See [LEGAL.md](LEGAL.md).
+Upstream architecture notes: [docs/](docs/). Contribution and firmware handling:
+[CONTRIBUTING.md](CONTRIBUTING.md), [LEGAL.md](LEGAL.md) and [RECOVERY.md](RECOVERY.md).
+Original source and this fork use the [MIT license](LICENSE).
