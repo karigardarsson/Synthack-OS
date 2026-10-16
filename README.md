@@ -6,6 +6,14 @@ Each mod is a small patch applied to the stock OS you download from elektron.se 
 > **Not affiliated with Elektron.** Modified firmware can make your device unusable and may void your warranty.
 > Learn the [recovery procedure](RECOVERY.md) before flashing. Use at your own risk.
 
+## This fork: upstream MAX and SY FM4
+
+**HARDWARE-PROVEN:** Kári's upstream-based MAX build for OS 1.41 booted and its musical features worked on a real Syntakt. It combines Angelo-politek's heap-based SyntHack mods with Déjà Vu LFO shapes and a 31-wave SY CHORD bank. The known-good local image has SHA-256 `7cb4bfd3da4af9c417ae812ec205036a85a430f3be62263cf58e6ae31df2c093`. See [build notes](tools/max/UPSTREAM_REBUILD.md). No firmware image is distributed here.
+
+**IN DEVELOPMENT:** Rxuting's MIT-licensed SY FM4 port for OS 1.41. CPU1 and CPU2 components compile; sound storage and selected parameter-lock paths pass offline tests. The page-local UI adapter is partial: selected-sound getter/setter routing and complete page-2 interaction remain unresolved. There is no unified MAX + FM4 image, and FM4 has not been tested on hardware. See [FM4 status](tools/fm4/OS141_PORT_STATUS.md) and [Rxuting's license](tools/fm4/LICENSE).
+
+Original SyntHack work is by [Angelo-politek](https://github.com/Angelo-politek/Synthack-OS). The Déjà Vu and SY CHORD source integration uses the separately pinned [Firmware Workbench](https://github.com/Bezronczek/syntakt-firmware-workbench); SY FM4 is by [Rxuting](https://github.com/Rxuting/sy-fm4). This branch contains source, tests and notes; building requires a separately obtained stock firmware file.
+
 **Status:** `v0.8.1` — seven mods running on real hardware.
 
 ## Features
