@@ -65,3 +65,36 @@ Question for Angelo/Rxuting: On OS 1.41, which concrete model vtable is held
 at SourcePageView+0xA0 for selected-track sound and for held-trig sound, and
 which getter/setter entries can safely route descriptor IDs 505-512 to logical
 sound indices 0x36-0x3D while retaining the stock lock and notification path?
+
+## Sound-model editor trace (current run)
+
+The complete encoder route is more specific than the earlier getter/setter
+description. SourcePageView first selects an active model through vtable slot
++0xC4 at 0x40037D70, which delegates to 0x4001C422. Its adjustment path at
+0x400380C6 invokes active-model slot +0x20; the two relevant native model
+vtables use 0x40012316. The arguments are (model, descriptor_id,
+current_value, encoder_delta). Its result is passed to
+0x4000DA32(context, descriptor_id, value, 1), which performs the native
+write and notification dispatch.
+
+The call at 0x4003B5A2 is not that persistent write path: for one active model
+it resolves to 0x400121A8, a value-conversion helper. Replacing it would create
+a misleading UI-only result.
+
+A bounded Unicorn trace of the real 0x40037E50 instruction sequence confirms
+that the native helper receives (context, 505, encoder_delta) before it would
+tail-call 0x4000DA32. The trace used only synthetic view state, so it does not
+establish the hardware-selected track or held-trig provider layout. For high
+IDs, native 0x40012316 rejects the range and native 0x4000DA32 has no safe
+logical-storage or notification route.
+
+**Current safety gate:** an FM4 adapter must preserve both the model selected
+by 0x4001C422 and the native write/notification semantics at 0x4000DA32 for
+ordinary tracks and held trigs. Directly writing a logical word would not
+demonstrate p-lock creation, restoration, or UI notification equivalence.
+No candidate is generated from this checkpoint.
+
+Focused question for Angelo/Rxuting: which model/provider operation used by
+0x4000DA32 is the supported way to write a logical sound index while
+preserving held-trig locks and change notifications, and can it accept
+indices 0x36..0x3D without widening the global descriptor tables?
