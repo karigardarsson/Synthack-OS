@@ -50,3 +50,9 @@ local/
 
 # registrazioni delle misure (tools/measure)
 rec/
+
+# Generated Windows package artifacts (the source manifest and MIT helper source remain tracked)
+tools/max/windows_builder/resources/*.exe
+tools/max/windows_builder/build/
+tools/max/windows_builder/dist/
+tools/max/windows_builder/*.spec

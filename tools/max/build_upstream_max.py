@@ -95,6 +95,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--node", type=Path, default=NODE)
     ap.add_argument("--output", type=Path, default=OUTPUT)
+    ap.add_argument("--release-manifest", type=Path,
+                    help="write the source-only MAX patch manifest for the offline Windows builder")
     ap.add_argument("--fm4", action="store_true")
     args = ap.parse_args()
     NODE = args.node.resolve()
@@ -124,6 +126,21 @@ def main():
         target = {sid: target_files[sid].read_bytes() for sid in (3, 7)}
         wb = json.loads(metadata.read_text())
         patches = generate_patches(original, target, wb["regions"], occupied())
+        if args.release_manifest:
+            release = {
+                "format": 1,
+                "name": "Syntakt MAX 1.0",
+                "os": "1.41",
+                "stock_sha256": STOCK_HASH,
+                "golden_sha256": "7cb4bfd3da4af9c417ae812ec205036a85a430f3be62263cf58e6ae31df2c093",
+                "mods": [json.loads((ROOT / "mods" / name / "patch.json").read_text()) for name in MODS]
+                        + [{"name": "workbench-max", "os": "1.41", "patches": patches}],
+                "features": wb["features"],
+                "waves": wb["waves"],
+                "workbench_commit": revision,
+            }
+            args.release_manifest.parent.mkdir(parents=True, exist_ok=True)
+            args.release_manifest.write_text(json.dumps(release, indent=2) + "\n")
         moddir = tmp / "workbench-max"
         moddir.mkdir()
         (moddir / "patch.json").write_text(json.dumps({"name": "workbench-max", "os": "1.41",
