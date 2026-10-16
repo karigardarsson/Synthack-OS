@@ -3,9 +3,20 @@ $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $eft = Join-Path $here 'vendor\elektron-firmware-tool'
 $gcc = 'C:\msys64\ucrt64\bin\gcc.exe'
 if (!(Test-Path $gcc)) { throw 'MSYS2 UCRT64 GCC is required to package the bundled MIT container tool.' }
-$sources = Get-ChildItem $eft -Filter '*.c' | ForEach-Object FullName
-& $gcc -std=c11 -O2 -Wall -Wextra -o (Join-Path $here 'resources\elektron-firmware-tool.exe') $sources
-if ($LASTEXITCODE -ne 0) { throw 'Failed to build elektron-firmware-tool.exe' }
-Push-Location $here
-python -m PyInstaller --noconfirm --clean --onefile --windowed --name Syntakt-MAX-1.0-Builder --add-data "$here\resources;resources" --paths $here (Join-Path $here 'app.py')
-Pop-Location
+$python = (Get-Command python -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
+$savedPath = $env:PATH
+try {
+  # gcc starts cc1.exe; its UCRT64 runtime DLLs must be discoverable by that child.
+  $env:PATH = 'C:\msys64\ucrt64\bin;' + $env:PATH
+  $sources = Get-ChildItem $eft -Filter '*.c' | ForEach-Object FullName
+  & $gcc -std=c11 -O2 -Wall -Wextra -o (Join-Path $here 'resources\elektron-firmware-tool.exe') $sources
+  if ($LASTEXITCODE -ne 0) { throw 'Failed to build elektron-firmware-tool.exe' }
+  Push-Location $here
+  try {
+    & $python -m PyInstaller --noconfirm --clean --onefile --windowed --name Syntakt-MAX-1.0-Builder --add-data "$here\resources;resources" --paths $here (Join-Path $here 'app.py')
+  } finally {
+    Pop-Location
+  }
+} finally {
+  $env:PATH = $savedPath
+}

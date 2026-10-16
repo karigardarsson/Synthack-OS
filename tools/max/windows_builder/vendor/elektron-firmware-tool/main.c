@@ -6,6 +6,12 @@
 #include "util.h"
 #include <errno.h>
 #include <sys/stat.h>
+#ifdef _WIN32
+#include <direct.h>
+#define eft_mkdir(path, mode) _mkdir(path)
+#else
+#define eft_mkdir(path, mode) mkdir(path, mode)
+#endif
 
 static int opt_verbose = 0; /* -v: full report, packet dumps, key */
 
@@ -43,11 +49,11 @@ static int make_outdir(const char *path) {
     for (char *p = tmp + 1; *p; p++)
         if (*p == '/') {
             *p = 0;
-            if (mkdir(tmp, 0755) != 0 && errno != EEXIST)
+            if (eft_mkdir(tmp, 0755) != 0 && errno != EEXIST)
                 return -1;
             *p = '/';
         }
-    if (mkdir(tmp, 0755) != 0 && errno != EEXIST)
+    if (eft_mkdir(tmp, 0755) != 0 && errno != EEXIST)
         return -1;
     return 0;
 }
