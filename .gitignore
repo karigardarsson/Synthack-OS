@@ -56,3 +56,6 @@ tools/max/windows_builder/resources/*.exe
 tools/max/windows_builder/build/
 tools/max/windows_builder/dist/
 tools/max/windows_builder/*.spec
+
+# Maintained source specification; generated specs remain ignored.
+!tools/max/windows_builder/windows.spec

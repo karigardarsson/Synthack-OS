@@ -1,6 +1,6 @@
-# Syntakt MAX 1.0 — release notes (local draft)
+# Syntakt MAX 1.0 — release notes (local candidate)
 
-Community mod bundle for **Elektron Syntakt OS 1.41**, with a standalone **Windows 11 x64** builder. The user supplies official stock firmware; the release contains no firmware image. This draft has not been pushed or released.
+Community mod bundle for **Elektron Syntakt OS 1.41**, with a standalone **Windows 11 x64** builder. The user supplies official stock firmware; the release contains no firmware image. This candidate has not been pushed or released. The Windows 10/11 packaging excludes OS-provided UCRT/APISet DLLs; runtime tests cover Windows 11 x64.
 
 ## Included
 
@@ -57,7 +57,7 @@ Bright waves may alias at high pitches. The eight chord waves use Workbench's de
 ## Evidence and limits
 
 - Kári reports this exact MAX firmware booted and its musical features functioned on one real Syntakt. This is not an exhaustive regression of every machine, project, MIDI/CC path, Overbridge configuration or performance/load combination.
-- Kári manually tested the Windows GUI: selected official OS 1.41, built successfully, saw the success dialog and generated MAX firmware. The builder only releases output matching the golden hash below. No separate hash of Kári's manually generated file was supplied.
+- Kári manually tested the prior executable (before the runtime packaging correction): selected official OS 1.41, built successfully, saw the success dialog and generated MAX firmware. The builder only releases output matching the golden hash below. No separate hash of Kári's manually generated file was supplied.
 - Offline evidence already recorded in the build notes: 295 upstream tests passed / 1 skipped; 111 focused modarea/ID/FX3 tests passed; Workbench DV/bank/picture tests passed. One generic Workbench end-to-end comparison lacked an optional golden fixture. These are software results, not additional hardware tests.
 - RC validation: 5 focused builder tests passed; native Windows core matched the golden output; invalid input was rejected without output; executable launch was verified. Clean-machine/non-admin testing and GUI cancel/unwritable-destination cases remain untested.
 - OS 1.41 with the exact input fingerprint only. No support claim for other Elektron devices, OS versions, Windows versions or ARM systems. FM4 is excluded.
@@ -65,14 +65,14 @@ Bright waves may alias at high pitches. The eight chord waves use Workbench's de
 
 ## Files and fingerprints
 
-Windows executable: `Syntakt-MAX-1.0-Builder.exe`, 11,626,089 bytes, unsigned.
+Windows executable: `Syntakt-MAX-1.0-Builder.exe`, 10,570,255 bytes, unsigned.
 
-Executable SHA-256: `cc0c042b69b46e5ffa06cbbe06b9f69ac0d5a6a9267e31f6d6495bc029ab7c3b`
+Executable SHA-256: `ae0c4eb65beb79baaf0634fb9107bfa2a95abd35274e6c35f4228a621e9e2f92`
 
 Required official OS 1.41 SHA-256: `8e2488f462c4a5656396a895f113bcd415e9900fa8709340dccf45d4cb9ed19e`
 
 Verified MAX output SHA-256: `7cb4bfd3da4af9c417ae812ec205036a85a430f3be62263cf58e6ae31df2c093`
 
-The source pipeline and native Windows builder produce the same output. Container checksums passed; section-3 decompression margin is 19,052 bytes. The hardware-proven image and executable remain byte-identical. The ZIP adds documentation and notices around that executable.
+The source pipeline and native Windows builder produce the same output. Container checksums passed; section-3 decompression margin is 19,052 bytes. The hardware-proven firmware remains byte-identical. The executable was rebuilt solely to exclude OS-provided UCRT/APISet DLLs. All six retained application DLLs and the builder core remain unchanged. See RUNTIME_REDISTRIBUTION.md for repeated native validation and provenance.
 
-Read `INSTALL.md`, `RECOVERY.md`, `ATTRIBUTION.md` and the license files before use. `REVIEW.md` records the remaining public-release gate. Source: [Kári's fork](https://github.com/karigardarsson/Synthack-OS). Original mods: [Angelo-politek](https://github.com/Angelo-politek/Synthack-OS) and [Bezronczek](https://github.com/Bezronczek/syntakt-firmware-workbench).
+Read `INSTALL.md`, `RECOVERY.md`, `ATTRIBUTION.md` and the license files before use. `REVIEW.md` records the resolved runtime gate and remaining test coverage limits. Source: [Kári's fork](https://github.com/karigardarsson/Synthack-OS). Original mods: [Angelo-politek](https://github.com/Angelo-politek/Synthack-OS) and [Bezronczek](https://github.com/Bezronczek/syntakt-firmware-workbench).

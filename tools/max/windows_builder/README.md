@@ -35,3 +35,12 @@ files.
 `build_windows.ps1` compiles the bundled MIT helper and uses PyInstaller to
 create the one-file executable. This requires Windows Python with PyInstaller
 and MSYS2 UCRT64 GCC; these are build-time dependencies only.
+
+## Windows runtime packaging
+
+The maintained `windows.spec` excludes OS-provided UCRT/APISet DLLs for the
+Windows 10/11 target and rejects retained DLLs from outside the selected Python
+installation. Windows 11 x64 startup and packaged-resource core tests passed;
+Windows 10 and an independent clean machine remain untested. The new EXE needs
+a fresh manual GUI run if validation of every file-dialog interaction at its
+new fingerprint is required. See [runtime provenance and validation](../release_1_0/RUNTIME_REDISTRIBUTION.md).

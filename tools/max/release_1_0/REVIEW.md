@@ -1,24 +1,13 @@
 # MAX 1.0 local release review — 2026-10-17
 
-Status: **prepared locally; HOLD public publication pending the runtime provenance item below**. No GitHub push, tag, release, hardware flash or MIDI transfer was performed.
+Status: **GO for public community release with the documented Windows 11 test scope. The runtime redistribution gate is resolved.** No push, tag, release, flash or transmission was performed.
 
-## Open publication gate
+The former gate concerned 44 Microsoft UCRT/APISet DLLs collected from an undocumented host dependency directory. All 44 are now excluded. Native Windows startup confirms use of system UCRT. The retained VCRUNTIME140.dll matches Python.org's official 3.12.10 distribution byte for byte, whose Windows redistribution conditions are included. See [runtime evidence](RUNTIME_REDISTRIBUTION.md) and [exact DLL inventory](RUNTIME_DLL_INVENTORY.csv).
 
-PyInstaller's actual Analysis-00.toc collected `ucrtbase.dll` and APISet DLLs from a host Codex runtime/libheif dependency directory, rather than an identified Windows SDK redistribution folder. The UCRT DLL has a valid Microsoft signature and version 10.0.26100.4654. The host dependency manifest identifies libheif and other libraries but supplies no redistribution terms for these Microsoft files. No installed Windows SDK Redist directory was found. Python's Microsoft binary restrictions are included, but do not establish the source/grant for the additional host-collected files.
+Candidate EXE: `ae0c4eb65beb79baaf0634fb9107bfa2a95abd35274e6c35f4228a621e9e2f92` (10570255 bytes). Firmware output remains `7cb4bfd3da4af9c417ae812ec205036a85a430f3be62263cf58e6ae31df2c093`. The previous EXE `cc0c042b69b46e5ffa06cbbe06b9f69ac0d5a6a9267e31f6d6495bc029ab7c3b` and previous review ZIP remain unchanged as rollback artifacts. Firmware code, patches, manifest, builder core and GUI source are unchanged.
 
-This is an **incomplete redistribution evidence chain**, not evidence of infringement or a runtime defect. Microsoft documents local UCRT deployment using SDK Redist DLLs: https://learn.microsoft.com/en-us/cpp/windows/universal-crt-deployment . Before publishing the binary, establish the applicable grant for these exact DLLs. If that cannot be established, a separately authorized packaging-only rebuild should use a documented redistributable source or rely on the Windows 11 system UCRT, followed by hash and GUI validation. The existing verified EXE was deliberately preserved in this run.
+Native Windows validation passed: new EXE startup with system-only PATH; actual system UCRT loading; packaged helper; golden core build using resources extracted from the new EXE; output container integrity; incorrect-input rejection; five focused tests; final asset inventory and ZIP checks. No network connection was observed during startup; the local build used no network downloads. This is not evidence of a network-isolated run.
 
-## Validation record
+Coverage limits: Kári's complete GUI workflow test was on the previous EXE. The new executable's startup and extracted-assets core build passed; its complete GUI file-dialog workflow has not yet been manually repeated. Independent clean-machine/non-admin testing, Windows 10 runtime testing, cancelled/unwritable-destination GUI cases and exhaustive hardware/MIDI/Overbridge/project coverage remain untested. The output firmware itself is unchanged from the hardware-proven baseline.
 
-- Exact release input: builder code at `4525e3aa6fdf2ec7dc9e5f52e57d870c3f41272c`; no builder-core, firmware, manifest or executable changes in this release-preparation run.
-- EXE: `cc0c042b69b46e5ffa06cbbe06b9f69ac0d5a6a9267e31f6d6495bc029ab7c3b`, 11626089 bytes. Known-good firmware: `7cb4bfd3da4af9c417ae812ec205036a85a430f3be62263cf58e6ae31df2c093`. Stock: `8e2488f462c4a5656396a895f113bcd415e9900fa8709340dccf45d4cb9ed19e`.
-- User-reported manual GUI success is recorded in RELEASE_NOTES.md without inventing a separately measured output hash.
-- Earlier focused/core/container tests are attributed as earlier evidence, not rerun firmware validation. This run rechecks file hashes, manifest composition, licenses, package allowlist, archive integrity, Git diff and protected-source hashes.
-- MIT SyntHack, Workbench and helper licenses included verbatim; Python's installed license collection, PyInstaller license/exception, Tcl/Tk terms, OpenSSL and zlib notices included externally. This is a multi-license package; the top-level MIT does not relicense runtimes or Elektron firmware.
-- Remaining test coverage limits: independent clean Windows machine; normal non-admin account; cancelled file chooser and unwritable-destination GUI cases; exhaustive device/MIDI/Overbridge/project compatibility.
-
-## Proposed publication shape (not executed)
-
-Title: `Syntakt MAX 1.0`
-
-Upload the complete reviewed Windows ZIP plus its external SHA256SUMS.txt; use RELEASE_NOTES.md as the release body. Do not attach the raw EXE alone because its external notices are required. Do not attach any firmware `.syx`. Select the eventual reviewed source commit on this builder branch; do not use an FM4 branch as the release target. No tag was created by this run.
+Publish the complete ZIP and its SHA256SUMS.txt with RELEASE_NOTES.md as the release body after human review. Keep all notices with the EXE; its embedded notice alone is incomplete. Select the reviewed source commit on `codex/max-builder-windows`. Do not publish firmware `.syx` files, the obsolete review ZIP, full local machine-path audit artifacts, or an FM4 source branch as this release. This run makes no release/tag or remote changes.

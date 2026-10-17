@@ -13,7 +13,8 @@ try {
   if ($LASTEXITCODE -ne 0) { throw 'Failed to build elektron-firmware-tool.exe' }
   Push-Location $here
   try {
-    & $python -m PyInstaller --noconfirm --clean --onefile --windowed --name Syntakt-MAX-1.0-Builder --add-data "$here\resources;resources" --paths $here (Join-Path $here 'app.py')
+    & $python -m PyInstaller --noconfirm --clean (Join-Path $here 'windows.spec')
+    if ($LASTEXITCODE -ne 0) { throw 'Failed to package the Windows builder' }
   } finally {
     Pop-Location
   }
