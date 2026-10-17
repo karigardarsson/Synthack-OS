@@ -23,7 +23,7 @@ The upstream SyntHack splash and heap modarea/vparams infrastructure are retaine
 1. Download and extract **Syntakt-MAX-1.0-Windows-x64.zip**. Keep its notices and licenses with the EXE.
 2. Obtain official **Syntakt OS 1.41** from [Elektron support](https://www.elektron.se/support). The builder rejects other versions or modified inputs.
 3. Run the builder on Windows, select that stock `.syx`, click **Build and Save MAX 1.0**, and choose a new output filename. Wait for the success dialog.
-4. Verify the generated file's SHA-256 below. Read the [installation instructions](https://github.com/karigardarsson/Synthack-OS/blob/syntakt-max-v1.0/tools/max/release_1_0/INSTALL.md) and [recovery guidance](https://github.com/karigardarsson/Synthack-OS/blob/syntakt-max-v1.0/RECOVERY.md) before separately using Elektron Transfer. The builder performs no device transfer.
+4. Verify the generated file's SHA-256 below. Read the [FAQ](https://github.com/karigardarsson/Synthack-OS/blob/syntakt-max-release/tools/max/release_1_0/FAQ.md), [installation instructions](https://github.com/karigardarsson/Synthack-OS/blob/syntakt-max-v1.0/tools/max/release_1_0/INSTALL.md) and [recovery guidance](https://github.com/karigardarsson/Synthack-OS/blob/syntakt-max-v1.0/RECOVERY.md) before separately using Elektron Transfer. The builder performs no device transfer.
 
 The release contains **no Elektron firmware, generated `.syx`, extracted OS sections, projects or samples**. No separate Python, WSL, compiler or Git installation is required to run the builder.
 

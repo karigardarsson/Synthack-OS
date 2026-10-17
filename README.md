@@ -4,7 +4,7 @@ Unofficial community mod bundle for **Elektron Syntakt OS 1.41**, built locally 
 
 **Hardware evidence:** Kári's upstream-based MAX image booted and its musical features functioned on one Syntakt. Known-good output SHA-256: `7cb4bfd3da4af9c417ae812ec205036a85a430f3be62263cf58e6ae31df2c093`. Kári also manually completed the Windows GUI build workflow. Other hardware/software configurations and exhaustive regressions are not certified.
 
-**Release preparation:** local draft only; no release has been published by this run. See [release notes](tools/max/release_1_0/RELEASE_NOTES.md), [installation](tools/max/release_1_0/INSTALL.md), [attribution](tools/max/release_1_0/ATTRIBUTION.md), and [release validation](tools/max/release_1_0/REVIEW.md). Windows 11 x64 is the tested builder platform. Read [recovery guidance](RECOVERY.md) before installing modified firmware.
+**Release:** [Syntakt MAX 1.0](https://github.com/karigardarsson/Synthack-OS/releases/tag/syntakt-max-v1.0) is an experimental prerelease. See the [FAQ](tools/max/release_1_0/FAQ.md), [release notes](tools/max/release_1_0/RELEASE_NOTES.md), [installation](tools/max/release_1_0/INSTALL.md), [attribution](tools/max/release_1_0/ATTRIBUTION.md), and [release validation](tools/max/release_1_0/REVIEW.md). Windows 11 x64 is the tested builder platform. Read [recovery guidance](RECOVERY.md) before installing modified firmware.
 
 ## Included in MAX 1.0
 

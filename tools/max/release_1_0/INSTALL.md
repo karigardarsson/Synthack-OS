@@ -13,6 +13,8 @@ EXE SHA-256: `ae0c4eb65beb79baaf0634fb9107bfa2a95abd35274e6c35f4228a621e9e2f92`
 
 The packaged app builds offline and requires no separate Python, WSL, Git, compiler or MIDI connection. Runtime independence was tested on the development Windows system; an independent clean-machine and standard-user test remains outstanding. Choose a writable folder. If the app reports an error, do not use any partial output.
 
+For common questions about OS versions, waves, compression, platform support and recovery, read the [FAQ](FAQ.md).
+
 ## Install separately with Elektron's tools
 
 The builder never sends firmware. Before deciding to install, back up projects and sounds using your established Elektron backup workflow; read `RECOVERY.md` and have a working DIN recovery interface available. Follow [Elektron's OS update instructions](https://support.elektron.se/support/solutions/articles/43000662701-how-to-update-your-device-via-sysex-transfer) with your locally generated file. For a normally booting Syntakt, use Elektron Transfer's supported OS update flow and the device's confirmation prompts. Do not interrupt power or transfer.
