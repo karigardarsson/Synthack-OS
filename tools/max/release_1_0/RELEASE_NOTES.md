@@ -57,7 +57,7 @@ Bright waves may alias at high pitches. The eight chord waves use Workbench's de
 ## Evidence and limits
 
 - Kári reports this exact MAX firmware booted and its musical features functioned on one real Syntakt. This is not an exhaustive regression of every machine, project, MIDI/CC path, Overbridge configuration or performance/load combination.
-- Kári manually tested the prior executable (before the runtime packaging correction): selected official OS 1.41, built successfully, saw the success dialog and generated MAX firmware. The builder only releases output matching the golden hash below. No separate hash of Kári's manually generated file was supplied.
+- Kári reports successful manual GUI testing of the latest executable (`ae0c4eb65beb79baaf0634fb9107bfa2a95abd35274e6c35f4228a621e9e2f92`): selected official OS 1.41, built successfully, saw the success dialog and generated MAX firmware. The builder only releases output matching the golden hash below. No separate hash of Kári's manually generated file was supplied.
 - Offline evidence already recorded in the build notes: 295 upstream tests passed / 1 skipped; 111 focused modarea/ID/FX3 tests passed; Workbench DV/bank/picture tests passed. One generic Workbench end-to-end comparison lacked an optional golden fixture. These are software results, not additional hardware tests.
 - RC validation: 5 focused builder tests passed; native Windows core matched the golden output; invalid input was rejected without output; executable launch was verified. Clean-machine/non-admin testing and GUI cancel/unwritable-destination cases remain untested.
 - OS 1.41 with the exact input fingerprint only. No support claim for other Elektron devices, OS versions, Windows versions or ARM systems. FM4 is excluded.
