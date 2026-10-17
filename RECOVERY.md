@@ -1,25 +1,21 @@
-# Recovery
+# Syntakt recovery
 
-The Syntakt's **bootstrap** (section 2) contains its own OS-upgrade menu. Our tools never modify it, so a mod that crashes at boot is recoverable.
+Keep the official stock OS 1.41 and backups before installing modified firmware. Recovery has been demonstrated on Kári's Syntakt using the UNO Synth Pro X DIN path; this does not guarantee recovery for every interface or failure. MAX's patch tools preserve the bootstrap, but that alone is not proof of recovery.
 
-## Normal case (OS still boots)
+## Device still boots
 
-Flash the stock `.syx` with Elektron Transfer → *Drop* page. Works even if a mod misbehaves, as long as the OS starts.
+Use Elektron Transfer and the supported OS-update procedure with your official stock `.syx`. Follow the device confirmation prompts and do not interrupt power.
 
-## OS doesn't boot: MIDI DIN recovery
+## Device does not boot normally
 
-USB doesn't work from the startup menu — you need a MIDI interface with a 5-pin MIDI OUT.
+Follow [Elektron's SysEx recovery instructions](https://support.elektron.se/support/solutions/articles/43000662701-how-to-update-your-device-via-sysex-transfer) and the [Syntakt manual, startup-menu section](https://www.elektron.se/wp-content/uploads/2026/03/Syntakt-User-Manual_ENG_OS1.40_260304.pdf). The linked manual covers OS 1.40; the startup-menu procedure is the relevant reference, not proof of MAX compatibility.
 
-1. MIDI OUT of the interface → **MIDI IN** of the Syntakt.
-2. Hold **[FUNC]** while powering on → **STARTUP** menu.
-3. **[TRIG 4]** → OS UPGRADE.
-4. Elektron Transfer → SYSEX TRANSFER → **OS Upgrade via device startup menu** → send the stock `.syx` to the MIDI port.
-5. Wait (tens of minutes at 31.25 kbit/s). The Syntakt restarts by itself.
+1. Connect the interface's physical MIDI OUT to Syntakt MIDI IN.
+2. Hold FUNC while powering on to open STARTUP.
+3. Select TRIG 4, OS UPGRADE.
+4. In Elektron Transfer's SYSEX TRANSFER page, choose OS upgrade via device startup menu and send the official stock image to the DIN MIDI port.
+5. Follow the prompts and wait for completion; DIN transfer may take tens of minutes.
 
-Avoid **[TRIG 2]** (empty reset) and **[TRIG 3]** (factory reset): they erase data.
+Startup-menu OS upgrade requires physical MIDI; USB MIDI is unavailable for that procedure. Interface SysEx support matters. TRIG 2 and TRIG 3 are reset operations and can erase data; they are not required for this OS recovery procedure.
 
-## Before your first flash
-
-- Back up projects and sounds with Transfer.
-- Do one dry run of the MIDI DIN procedure with the stock OS.
-- Only flash files where `python tools/unpack/eft.py info <file>` reports `checksums : ok`.
+The MAX builder only creates a local file. It performs no backup, device update, reset or recovery. Retain your own backup and official image.
