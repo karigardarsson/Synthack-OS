@@ -1,30 +1,27 @@
 # RC1 validation and compatibility
 
-## Evidence
+## What has been checked
 
 | Check | Result | Evidence level |
 | --- | --- | --- |
-| Official OS input gate | Only SHA-256 `8e2488f462c4a5656396a895f113bcd415e9900fa8709340dccf45d4cb9ed19e` accepted; altered input rejected. | Native Windows core test |
-| All nonempty feature selections | 255/255 pass stock preimage, patch overlap, dependency, CPU2 and heap-layout checks. Empty/unknown selections rejected. | Host static test |
-| Original MAX 1.0 preset | SHA-256 `7cb4bfd3da4af9c417ae812ec205036a85a430f3be62263cf58e6ae31df2c093`; boot margin 19,052 bytes. | Linux and Windows build; published image hardware-proven |
-| MAX FULL + FM4 preset | SHA-256 `3eaaf21ca0ed137eba14e321269d69383769da9210f818d0ad1db24356696d89`; boot margin 18,930 bytes. | Linux and Windows build; byte-identical to user-reported initial hardware-tested candidate |
-| FM4 ONLY preset | SHA-256 `1f74cad579848132aad0b25bc9371b7dd2bbee72961cd98a3e351cd8695e860e`; boot margin 19,610 bytes. | Linux and Windows build; exact profile hardware-untested |
-| Custom CHORD-only example | SHA-256 `61b66e27d4237e48f3b155e8321204629477a4ae5546b06d7c2d8cdf591dbaa3`; boot margin 21,279 bytes. | Linux build; hardware-untested as this exact custom image |
-| Container checks | Section checksums, decoded sections 3 and 7 and the minimum 4,096-byte boot margin verified for the built profiles. | Native package checks |
-| Windows package | EXE built on Windows 11 x64; archive excludes OS UCRT/APISet DLLs and contains the helper and manifest; process starts. | Package inspection and startup smoke |
-| GUI callbacks | Input selection, cancellation, build progress/success, saved report and invalid-input error flow passed on native Windows Tk with dialogs stubbed; output matched the integrated golden hash. | Windows source-level GUI integration test; packaged visual interaction untested |
+| Official OS input gate | Only SHA-256 `8e2488f462c4a5656396a895f113bcd415e9900fa8709340dccf45d4cb9ed19e` is accepted; altered input is rejected. | HOST-TESTED |
+| All nonempty feature selections | 255/255 pass stock preimage, patch overlap, dependency, CPU2 and heap-layout checks. Empty and unknown selections are rejected. | BUILD-VALIDATED |
+| Original MAX 1.0 preset | SHA-256 `7cb4bfd3da4af9c417ae812ec205036a85a430f3be62263cf58e6ae31df2c093`; boot margin 19,052 bytes. | HARDWARE-TESTED image; BUILD-VALIDATED on Linux and Windows |
+| MAX FULL + FM4 preset | SHA-256 `3eaaf21ca0ed137eba14e321269d69383769da9210f818d0ad1db24356696d89`; boot margin 18,930 bytes. | BUILD-VALIDATED on Linux and Windows; byte-identical to the initially HARDWARE-TESTED candidate |
+| FM4 ONLY preset | SHA-256 `1f74cad579848132aad0b25bc9371b7dd2bbee72961cd98a3e351cd8695e860e`; boot margin 19,610 bytes. | BUILD-VALIDATED; this exact profile is EXPERIMENTAL on hardware |
+| Custom CHORD-only example | SHA-256 `61b66e27d4237e48f3b155e8321204629477a4ae5546b06d7c2d8cdf591dbaa3`; boot margin 21,279 bytes. | BUILD-VALIDATED; hardware-untested as this exact custom image |
+| Container integrity | Section checksums, decoded sections 3 and 7, protected stock sections, and the 4,096-byte minimum boot margin passed. | BUILD-VALIDATED |
+| Windows package | EXE built on Windows 11 x64; archive excludes OS UCRT/APISet DLLs and contains the expected helper and manifest; process starts. | BUILD-VALIDATED |
+| GUI callbacks | Input selection, cancellation, build progress/success, saved report, and invalid-input error flow passed with native Windows Tk; output matched the integrated hash. | HOST-TESTED |
 
-All 255 selections are **offline-compatible**, not hardware-validated configurations. The exact per-selection results are in [COMPATIBILITY_MATRIX.csv](COMPATIBILITY_MATRIX.csv). The only integrated profile with user-reported FM4 hardware operation is the exact MAX FULL + FM4 image. Custom combinations, FM4 ONLY as generated here, clean-machine runtime and full packaged-GUI interaction remain untested. The planned one-session combined test is in [HARDWARE_TEST.md](HARDWARE_TEST.md).
+The exact per-selection outcomes are in [COMPATIBILITY_MATRIX.csv](COMPATIBILITY_MATRIX.csv). This is substantial coverage of compatibility at build time, while still leaving real musical use of many custom combinations for community testing.
 
-The source builders and native Windows builder core produced identical hashes for all three presets. No claim is made that the full stock UI, all project states, all FM algorithms, MIDI, or every optional-mod combination have been exercised on hardware. The test matrix verifies patch compatibility and container safety; it cannot prove runtime interactions.
+## What still benefits from testing
 
-## Important FM4-only distinction
+The planned combined acceptance session covers the exact MAX FULL + FM4 image. FM4 ONLY as generated here, custom combinations, a clean standard-user Windows environment, and the packaged EXE's visual file-dialog workflow remain useful next tests. Results, photos, and reports from those sessions will help focus the next release.
 
-The historical standalone FM4 RC1 is reproducible at SHA-256 `8197f9c73175d89a527635b57ad42aa7ce243a495f20e0c8548d9cbb81d81a8a`, but its manifest calls the legacy `0x46000000` loader while the linked FM4 UI data addresses are in the `0x444E...` heap area. The modular builder uses the heap-reserved loader, as does the tested integrated build. Thus FM4 ONLY is deliberately **not byte-identical** to RC1. Hardware testing must identify the exact image hash, not merely the feature name.
+The source builders and native Windows core produced identical hashes for all three presets. They do not establish every stock UI path, project state, FM algorithm, MIDI behavior, or optional-mod combination on every instrument. See [HARDWARE_TEST.md](HARDWARE_TEST.md) and [FEEDBACK.md](FEEDBACK.md).
 
-## Remaining gates before public distribution
+## FM4-only profile
 
-- Kári's planned combined hardware acceptance session for the MAX FULL + FM4 image.
-- Manual visual test of the packaged EXE's file dialogs and success/error presentation. The Windows Computer Use launch attempt timed out; source GUI callbacks, native core output and packaged process startup passed.
-- Independent clean Windows 10/11 standard-user test, including an unwritable destination and Unicode filename.
-- Review of any hardware failures or project compatibility differences discovered during that session.
+The historical standalone FM4 RC1 is reproducible at SHA-256 `8197f9c73175d89a527635b57ad42aa7ce243a495f20e0c8548d9cbb81d81a8a`, but its manifest uses a legacy `0x46000000` loader while the linked FM4 UI data is in the `0x444E...` heap area. The modular builder uses the heap-reserved loader, as does the tested integrated build. This is why FM4 ONLY deliberately has a new hash and needs testing as its own profile.
