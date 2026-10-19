@@ -12,6 +12,7 @@
 | Custom CHORD-only example | SHA-256 `61b66e27d4237e48f3b155e8321204629477a4ae5546b06d7c2d8cdf591dbaa3`; boot margin 21,279 bytes. | Linux build; hardware-untested as this exact custom image |
 | Container checks | Section checksums, decoded sections 3 and 7 and the minimum 4,096-byte boot margin verified for the built profiles. | Native package checks |
 | Windows package | EXE built on Windows 11 x64; archive excludes OS UCRT/APISet DLLs and contains the helper and manifest; process starts. | Package inspection and startup smoke |
+| GUI callbacks | Input selection, cancellation, build progress/success, saved report and invalid-input error flow passed on native Windows Tk with dialogs stubbed; output matched the integrated golden hash. | Windows source-level GUI integration test; packaged visual interaction untested |
 
 All 255 selections are **offline-compatible**, not hardware-validated configurations. The exact per-selection results are in [COMPATIBILITY_MATRIX.csv](COMPATIBILITY_MATRIX.csv). The only integrated profile with user-reported FM4 hardware operation is the exact MAX FULL + FM4 image. Custom combinations, FM4 ONLY as generated here, clean-machine runtime and full packaged-GUI interaction remain untested. The planned one-session combined test is in [HARDWARE_TEST.md](HARDWARE_TEST.md).
 
@@ -24,6 +25,6 @@ The historical standalone FM4 RC1 is reproducible at SHA-256 `8197f9c73175d89a52
 ## Remaining gates before public distribution
 
 - Kári's planned combined hardware acceptance session for the MAX FULL + FM4 image.
-- Manual packaged-GUI test of input selection, build, cancellation and success/error dialogs. The Windows Computer Use launch attempt timed out; core output and process startup passed.
+- Manual visual test of the packaged EXE's file dialogs and success/error presentation. The Windows Computer Use launch attempt timed out; source GUI callbacks, native core output and packaged process startup passed.
 - Independent clean Windows 10/11 standard-user test, including an unwritable destination and Unicode filename.
 - Review of any hardware failures or project compatibility differences discovered during that session.
