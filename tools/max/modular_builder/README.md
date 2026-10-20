@@ -4,7 +4,7 @@ Build a Syntakt OS 1.41 firmware image locally from your own unmodified official
 
 The project is actively developed. The published MAX 1.0 image is hardware-proven, and the complete MAX FULL + FM4 preset reproduces the previously hardware-tested integrated candidate byte for byte. The builder and all 255 nonempty feature selections have passed meaningful host-side structural checks. More custom combinations and workflows are still being explored, so feedback and test reports are welcome.
 
-The builder targets Windows 10/11 x64. It was packaged and started on Windows 11 x64; preset builds and the source-level GUI flow passed native Windows tests. A manual visual test of the packaged file dialogs and an independent clean-machine test are still welcome. The executable is unsigned.
+The builder targets Windows 10/11 x64. Windows 11 x64 is the tested platform: it was packaged and started there, and preset builds and the source-level GUI flow passed native Windows tests. Windows 10 x64 is targeted but has not been independently verified. A manual visual test of the packaged file dialogs and an independent clean-machine test are still welcome. The executable is unsigned.
 
 ## Included feature groups
 
@@ -39,4 +39,4 @@ The GUI offers **MAX FULL + FM4**, **Original MAX 1.0**, **FM4 ONLY**, and **CUS
 
 The earlier standalone FM4 RC1 fingerprint `8197f9c7…` is intentionally not a modular-builder target: its legacy loader placement conflicts with linked FM4 heap addresses. Initial standalone FM4 observations therefore do not automatically apply to the new FM4 ONLY hash.
 
-The builder works offline with its bundled helper. It needs no separately installed Python, Git, GCC, or MSYS2 at runtime. For evidence details, recovery instructions, licensing, the hardware checklist, and feedback guidance, see [VALIDATION.md](VALIDATION.md), [RECOVERY.md](RECOVERY.md), [ATTRIBUTION.md](ATTRIBUTION.md), [HARDWARE_TEST.md](HARDWARE_TEST.md), and [FEEDBACK.md](FEEDBACK.md).
+The builder works offline with its bundled helper. It needs no separately installed Python, Git, GCC, or MSYS2 at runtime. The public RC1 release is [Syntakt MAX Modular Builder RC1](https://github.com/karigardarsson/Synthack-OS/releases/tag/syntakt-max-modular-builder-rc1). For user-facing controls, start with the [MAX User Guide](../../../docs/MAX_USER_GUIDE.md) and [Quick Reference](../../../docs/MAX_QUICK_REFERENCE.md); for evidence details, recovery instructions, licensing, the hardware checklist, and feedback guidance, see [VALIDATION.md](VALIDATION.md), [RECOVERY.md](RECOVERY.md), [ATTRIBUTION.md](ATTRIBUTION.md), [HARDWARE_TEST.md](HARDWARE_TEST.md), and [FEEDBACK.md](FEEDBACK.md).

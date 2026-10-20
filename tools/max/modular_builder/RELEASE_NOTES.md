@@ -6,6 +6,6 @@ The builder verifies the official input, patch preimages, overlap, container che
 
 The Original MAX 1.0 preset is HARDWARE-TESTED. MAX FULL + FM4 is BUILD-VALIDATED and byte-identical to the initially HARDWARE-TESTED integrated candidate. All 255 nonempty selections passed structural validation. The new FM4 ONLY heap-loader profile and many custom musical combinations are still EXPERIMENTAL on hardware, which makes focused community feedback especially valuable.
 
-The release ZIP contains the builder, checksums, recovery guidance, test evidence, attribution, and licenses. It contains no Elektron firmware or generated `.syx` image. The RC remains local pending the planned combined hardware acceptance session and final packaged-GUI/clean-machine checks.
+The public [Syntakt MAX Modular Builder RC1 release](https://github.com/karigardarsson/Synthack-OS/releases/tag/syntakt-max-modular-builder-rc1) ZIP contains the builder, checksums, recovery guidance, test evidence, attribution, and licenses. It contains no Elektron firmware or generated `.syx` image. The planned combined hardware acceptance session and final packaged-GUI/clean-machine checks remain outstanding requirements for future updates; they do not undo this RC1 publication.
 
-See [README.md](README.md), [VALIDATION.md](VALIDATION.md), [HARDWARE_TEST.md](HARDWARE_TEST.md), and [FEEDBACK.md](FEEDBACK.md).
+See [MAX User Guide](../../../docs/MAX_USER_GUIDE.md), [Quick Reference](../../../docs/MAX_QUICK_REFERENCE.md), [README.md](README.md), [VALIDATION.md](VALIDATION.md), [HARDWARE_TEST.md](HARDWARE_TEST.md), and [FEEDBACK.md](FEEDBACK.md).

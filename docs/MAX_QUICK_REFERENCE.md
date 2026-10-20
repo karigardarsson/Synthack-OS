@@ -2,7 +2,8 @@
 
 > **Experimental RC1.** This page is a fast control map, not a replacement for
 > [the full user guide](MAX_USER_GUIDE.md). It applies only to an image built
-> from the exact official Syntakt OS 1.41 input accepted by the builder.
+> from the exact official Syntakt OS 1.41 input accepted by the builder. The
+> public release is [Syntakt MAX Modular Builder RC1](https://github.com/karigardarsson/Synthack-OS/releases/tag/syntakt-max-modular-builder-rc1).
 
 ## Choose a builder preset
 
@@ -10,7 +11,7 @@
 | --- | --- | --- |
 | **MAX FULL + FM4** | All eight feature groups | BUILD-VALIDATED; byte-identical to the initially hardware-tested integrated candidate. The complete combined acceptance session is still pending. |
 | **Original MAX 1.0** | The seven MAX groups, without FM4 | The known hardware-tested MAX 1.0 image. |
-| **FM4 ONLY** | SY FM4 plus its required support modules | BUILD-VALIDATED only. This new heap-loader profile is **experimental on hardware**. |
+| **FM4 ONLY** | SY FM4 plus its required support modules | BUILD-VALIDATED only. This new heap-loader profile is **experimental on hardware** and does not inherit initial FM4 hardware evidence. |
 | **CUSTOM** | Any non-empty selection of the eight groups | All 255 possible non-empty selections are structurally/build validated; individual musical behaviour is not hardware-proven. |
 
 The builder adds its support modules automatically. It does not connect to the
@@ -21,9 +22,9 @@ SHA-256 and the adjacent selected-mods JSON report.
 
 | Feature | Where to find it | Controls | First safe check |
 | --- | --- | --- | --- |
-| **SY FM4** | Select **SY TONE**; set **ALGO 1–11**; open **SYN page 2** | ALGO, RAT3, LEV3, DEC3, RAT4, LEV4, DEC4, DET | On a disposable sound, select ALGO 1, play a short pattern and change one Page-2 value. **NEEDS HARDWARE CONFIRMATION.** |
+| **SY FM4** | Select **SY TONE**; set **ALGO 1–11**; open **SYN page 2** | ALGO, RAT3, LEV3, DEC3, RAT4, LEV4, DEC4, DET. The final physical encoder order is not claimed here. | Initial FM4 checks cover sound, editing, p-lock and save/reload; FM4 ONLY still **NEEDS HARDWARE CONFIRMATION**. |
 | **Master Compressor** | **FX track → SYN** | THR, ATK, REL, MUP, RAT, GR (meter), COMP; DRIVE stays stock | Start with RAT off, then turn it on and lower THR at modest volume. |
-| **FX3** | Send: audio track **AMP page 1, slot G (SND3)**. Effect: **FX track → REVERB**, press REVERB again for page 2 | TYPE; B–F are effect-specific; DEL is FX3-to-delay send; VOL is FX3 return | Raise SND3 a little, choose CHOR, raise VOL, then compare other TYPEs. **MIDI SYN/FX3 UI regression is under investigation in RC1.** |
+| **FX3** | Send: audio track **AMP page 1, slot G (SND3)**. Effect: **FX track → REVERB**, press REVERB again for page 2 | TYPE; B–F are effect-specific; DEL is FX3-to-delay send; VOL is FX3 return | Raise SND3 a little, choose CHOR, raise VOL, then compare other TYPEs. FX3 can appear on a MIDI-track SYN page in RC1. A rebuilt/reinstalled CUSTOM image without FX3 avoids that routing change; it is not a live toggle or a proven fix. |
 | **Beat Repeat** | **FX track → TRIG page**, first two slots; while playing, hold **retrig key 13** or **14** | RPT1/RPT2: 1/16, 1/8, 3/16, 1/4, 1/2, 1BAR | Hold key 13 for one beat and release; playback should resume in time. |
 | **Déjà Vu LFO** | A track's normal **LFO shape** selection | DV-F (free) or DV-T (note-restarted); MODE; SPH | Choose DV-F, MODE 2 and SPH 0; route LFO gently to pitch or filter. |
 | **SY CHORD Wave Bank** | **SY CHORD → SYN → WAVE** | WAVE 4, 8, ... 124 are the added fixed bank; WAVE 0 remains stock | Try WAVE 4 and WAVE 96 on a temporary sound, then return to WAVE 0. |
@@ -39,6 +40,8 @@ SHA-256 and the adjacent selected-mods JSON report.
 - Replaced SY CHORD WAVE values alter the timbre of older sounds that use them.
 - **Do not call custom combinations “hardware-tested.”** Their evidence is
   structural/build validation only.
+- SND3 track-send p-locking is source-supported. FX3 effect-parameter
+  p-locking is not claimed as verified behaviour.
 - If the instrument fails to boot or behaves unexpectedly, stop and follow
   [the recovery guidance](../tools/max/modular_builder/RECOVERY.md). Do not
   reset or erase projects as a first response.

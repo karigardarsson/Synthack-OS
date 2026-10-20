@@ -4,7 +4,7 @@ Unofficial community mod bundle for **Elektron Syntakt OS 1.41**, built locally 
 
 **Hardware evidence:** Kári's upstream-based MAX image booted and its musical features functioned on one Syntakt. Known-good output SHA-256: `7cb4bfd3da4af9c417ae812ec205036a85a430f3be62263cf58e6ae31df2c093`. Kári also manually completed the Windows GUI build workflow. Other hardware/software configurations and exhaustive regressions are not certified.
 
-**Release preparation:** local draft only; no release has been published by this run. See [release notes](tools/max/release_1_0/RELEASE_NOTES.md), [installation](tools/max/release_1_0/INSTALL.md), [attribution](tools/max/release_1_0/ATTRIBUTION.md), and [release validation](tools/max/release_1_0/REVIEW.md). Windows 11 x64 is the tested builder platform. Read [recovery guidance](RECOVERY.md) before installing modified firmware.
+**Current release:** [Syntakt MAX Modular Builder RC1](https://github.com/karigardarsson/Synthack-OS/releases/tag/syntakt-max-modular-builder-rc1) is public. The historical MAX 1.0 preparation notes remain below for provenance. Windows 11 x64 is the tested builder platform; Windows 10 x64 is targeted but has not been independently verified. Read [recovery guidance](RECOVERY.md) before installing modified firmware.
 
 ## Included in MAX 1.0
 
@@ -28,7 +28,7 @@ The experimental modular builder adds SY FM4 as an eighth selectable feature
 group and can build MAX FULL + FM4, Original MAX 1.0, FM4 ONLY or a non-empty
 custom selection. Start with the [MAX Modular Builder user guide](docs/MAX_USER_GUIDE.md)
 and keep the [Quick Reference](docs/MAX_QUICK_REFERENCE.md) nearby at the
-instrument. The release navigation is [modular-builder README](tools/max/modular_builder/README.md),
+instrument. Download and release context are at [Syntakt MAX Modular Builder RC1](https://github.com/karigardarsson/Synthack-OS/releases/tag/syntakt-max-modular-builder-rc1). The release navigation is [modular-builder README](tools/max/modular_builder/README.md),
 with [validation](tools/max/modular_builder/VALIDATION.md), [recovery](tools/max/modular_builder/RECOVERY.md),
 [hardware checklist](tools/max/modular_builder/HARDWARE_TEST.md) and [feedback](tools/max/modular_builder/FEEDBACK.md).
 

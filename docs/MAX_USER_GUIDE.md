@@ -42,9 +42,10 @@ hardware combinations proven.
    a manual OS transfer. If a problem occurs, stop rather than resetting or
    erasing data.
 
-The builder is tested on Windows 10/11 x64 and is unsigned. It works offline
-and bundles what it needs at runtime; it does not require Python, Git, GCC or
-MSYS2 to be installed separately.
+The builder targets Windows 10/11 x64 and is unsigned. Windows 11 x64 is the
+tested platform; Windows 10 x64 is a target, not an independently verified
+platform. It works offline and bundles what it needs at runtime; it does not
+require Python, Git, GCC or MSYS2 to be installed separately.
 
 ## Build an image
 
@@ -66,7 +67,7 @@ MSYS2 to be installed separately.
 | --- | --- | --- | --- |
 | **Original MAX 1.0** | The seven established MAX groups (not FM4) | `7cb4bfd3da4af9c417ae812ec205036a85a430f3be62263cf58e6ae31df2c093` | **HARDWARE-TESTED** image; also BUILD-VALIDATED. |
 | **MAX FULL + FM4** | All eight groups | `3eaaf21ca0ed137eba14e321269d69383769da9210f818d0ad1db24356696d89` | **BUILD-VALIDATED**; byte-identical to the initially hardware-tested integrated candidate. The complete combined acceptance session remains pending. |
-| **FM4 ONLY** | SY FM4 with required support modules | `1f74cad579848132aad0b25bc9371b7dd2bbee72961cd98a3e351cd8695e860e` | **BUILD-VALIDATED**, experimental on hardware. |
+| **FM4 ONLY** | SY FM4 with required support modules | `1f74cad579848132aad0b25bc9371b7dd2bbee72961cd98a3e351cd8695e860e` | **BUILD-VALIDATED**, experimental on hardware. It does not inherit the initial FM4 hardware claim. |
 | **CUSTOM** | Any non-empty combination | Varies; record the builder result | **BUILD-VALIDATED** structurally, hardware behaviour unproven for that exact image. |
 
 Dependencies are automatic. Master Compressor, FX3, Beat Repeat, Readable
@@ -82,8 +83,11 @@ the FM4 ONLY profile.
 **What it does.** SY FM4 adds four-operator FM algorithms to **SY TONE**.
 **ALGO 0** remains stock SY TONE; **ALGO 1–11** select the FM algorithms.
 
-**Where it is.** Select the SY TONE machine and open **SYN page 2**. The
-source-defined Page-2 controls are, in order:
+**Where it is.** Select the SY TONE machine and open **SYN page 2**. The final
+integrated metadata confirms these eight Page-2 controls: ALGO, RAT3, LEV3,
+DEC3, RAT4, LEV4, DEC4 and DET. The physical encoder order for the last four
+is not independently documented in this checkout, so this guide deliberately
+does not claim one.
 
 | Control | Purpose |
 | --- | --- |
@@ -92,11 +96,11 @@ source-defined Page-2 controls are, in order:
 | RAT4 / LEV4 / DEC4 | Ratio, level and decay for operator 4. |
 | DET | FM detune. |
 
-**First test — NEEDS HARDWARE CONFIRMATION.** On a disposable SY TONE sound,
-play a short pattern, select ALGO 1, then make a small RAT3 or LEV3 change on
-SYN page 2. Add a held-trig lock, save, reload and compare. This is exactly the
-kind of path that needs checking, not a claim that every FM algorithm or edit
-path is already proven.
+**First test.** On a disposable SY TONE sound, play a short pattern, select
+ALGO 1, then make a small RAT3 or LEV3 change on SYN page 2. Add a held-trig
+lock, save, reload and compare. Initial FM4 hardware observations cover sound,
+editing, a parameter lock and save/reload. This is not a claim that every
+algorithm or edit path is proven.
 
 **Musical starting points.**
 
@@ -105,12 +109,12 @@ path is already proven.
 - Use a p-lock on ALGO or one operator level for a single accented step, then
   save a separate sound before exploring aggressive ratios.
 
-**Persistence and limit.** Source and emulator tests cover FM4 logical sound
-storage and pattern-lock lanes, but the full MIDI/SYN/FX3 interaction is not
-hardware established. A **MIDI SYN/FX3 UI regression is under investigation in
-RC1**; do not describe it as fixed, and include it in a test report. FM4 ONLY
-uses a different heap-loader arrangement from the earlier standalone FM4 image,
-so it requires its own hardware coverage.
+**Persistence and limit.** Initial FM4 hardware observations cover sound,
+editing, p-lock and save/reload; source and emulator tests additionally cover
+logical sound storage and pattern-lock lanes. The **FM4 ONLY** profile has a
+different firmware fingerprint and heap-loader arrangement, so it does not
+inherit that hardware-validation claim and needs its own coverage. The full
+MIDI/SYN/FX3 interaction is not established for every modular image.
 
 ### Master Compressor
 
@@ -178,15 +182,23 @@ direct return is audible.
 
 - Use a small SND3 amount and a slow CHOR for width, leaving the original
   track present on the dry path.
-- For a controlled transition, p-lock a brief CRSH reduction in BITS or SRR on
-  one step, then return to a saved normal value.
+- For a controlled transition, change CRSH BITS or SRR by hand, then return to
+  a saved normal value. FX3 parameter p-locking itself is not documented here
+  as verified behaviour.
 
 **Saving and limits.** SND3 is saved with each track in the kit and is
-p-lockable. FX3 settings are kit settings, per pattern like delay and reverb.
-FX3 runs at 24 kHz, so it is intentionally not a full-bandwidth parallel bus.
-The **MIDI SYN/FX3 UI regression reported for RC1 is under investigation**:
-test MIDI and FX-page navigation deliberately and report the generated-image
-hash; do not assume it is fixed.
+source-supported as p-lockable. FX3 settings are kit settings, per pattern like
+delay and reverb. FX3 runs at 24 kHz, so it is intentionally not a
+full-bandwidth parallel bus. FX3 parameter-lock behaviour is not claimed as
+verified here.
+
+**Known RC1 MIDI/FX3 routing regression.** FX3 controls can appear on a MIDI
+track's SYN page because the FX3 implementation globally reuses descriptor IDs
+246–253. This observation does not establish that MIDI playback is broken. A
+temporary workaround is to build a **CUSTOM** image with **FX3 unchecked**;
+that omits this particular FX3 routing modification. It requires rebuilding and
+reinstalling firmware—there is no live toggle—and it is not a hardware-proven
+fix. Record the generated-image hash when testing it.
 
 ### Beat Repeat
 
@@ -335,7 +347,9 @@ hash and then work through this focused list:
 2. FM4 Page-2 rendering/editing, a held-trig lock, save/reload and project
    reload. **NEEDS HARDWARE CONFIRMATION.**
 3. FX3 audibility in each TYPE, return level, then compressor response and GR.
-   Include MIDI SYN/FX3 navigation in the RC1 regression check.
+   On a MIDI track, check whether FX3 controls appear on SYN and record the
+   generated hash. If testing the workaround, build and install a new CUSTOM
+   image without FX3; do not treat it as a live setting or proven fix.
 4. Beat Repeat keys 13 and 14 at more than one rate; release cleanly in time.
 5. DV-F/DV-T, WAVE 4 and 96, then native WAVE 0.
 6. Dual Mono with real external sources, and readable-value labels.
@@ -356,7 +370,8 @@ The documented startup-menu recovery needs physical MIDI OUT to Syntakt MIDI
 IN; USB MIDI is not used for that recovery route. The reset options named in
 that document are not required for normal OS recovery and can erase data.
 
-For an eventual GitHub publication, publish documentation with the RC1 release
-notes and link to this guide, the quick reference, validation, attribution,
-recovery, hardware plan and feedback template. Do not call RC1 fully
-hardware-proven until the skipped/failed checklist items have been reviewed.
+RC1 is publicly available at [Syntakt MAX Modular Builder RC1](https://github.com/karigardarsson/Synthack-OS/releases/tag/syntakt-max-modular-builder-rc1).
+For a future update, carry forward links to this guide, the quick reference,
+validation, attribution, recovery, hardware plan and feedback template. Do not
+call a future image fully hardware-proven until its skipped/failed checklist
+items have been reviewed.
