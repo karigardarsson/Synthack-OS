@@ -1,11 +1,25 @@
-# Syntakt MAX Modular Builder — experimental RC1
+# Syntakt MAX Modular Builder - RC2
 
-This offline Windows x64 builder brings eight selectable community feature groups together in one verified OS 1.41 workflow: Master Compressor, FX3, Beat Repeat, Dual Mono Input, Readable Values, Déjà Vu LFO, the 31-wave SY CHORD bank, and SY FM4. It also includes the familiar Original MAX 1.0 preset, FM4 ONLY, and Custom selections with automatic infrastructure dependencies.
+RC2 is an experimental Windows x64 offline builder for Syntakt OS 1.41. It provides eight selectable feature groups, automatic dependencies, presets, and a checked build report beside each private firmware file. It never connects to a Syntakt.
 
-The builder verifies the official input, patch preimages, overlap, container checksums, decoded sections, CPU2 limits, and boot decompression margin. It saves the output SHA-256 and selected-mod report beside each generated file, and never connects to a device.
+## RC2 maintenance update
 
-The Original MAX 1.0 preset is HARDWARE-TESTED. MAX FULL + FM4 is BUILD-VALIDATED and byte-identical to the initially HARDWARE-TESTED integrated candidate. All 255 nonempty selections passed structural validation. The new FM4 ONLY heap-loader profile and many custom musical combinations are still EXPERIMENTAL on hardware, which makes focused community feedback especially valuable.
+RC2 corrects three MIDI parameter-ownership collisions:
 
-The release ZIP contains the builder, checksums, recovery guidance, test evidence, attribution, and licenses. It contains no Elektron firmware or generated `.syx` image. The RC remains local pending the planned combined hardware acceptance session and final packaged-GUI/clean-machine checks.
+- FX3 no longer replaces MIDI SYN controls.
+- Master Compressor no longer replaces MIDI AMP SEL1-SEL7.
+- Beat Repeat no longer replaces MIDI AMP SEL8.
 
-See [README.md](README.md), [VALIDATION.md](VALIDATION.md), [HARDWARE_TEST.md](HARDWARE_TEST.md), and [FEEDBACK.md](FEEDBACK.md).
+The exact **MAX FULL + FM4** image was manually accepted on Kari's Syntakt: MIDI AMP SEL1-SEL8 editing, MIDI SYN, MIDI-to-FX-to-MIDI switching, FX SYN compressor controls, FX TRIG Beat Repeat controls, FX3 audio, and SY FM4 page 2/audio passed. This is hardware evidence for that image only, not every builder selection.
+
+The reported compressor volume transient during FUNC + NO remains under investigation; RC2 does not claim to correct it.
+
+## Included groups and use
+
+Master Compressor, FX3, Beat Repeat, Dual Mono Input, Readable Values, Deja Vu LFO, the 31-wave SY CHORD bank, and SY FM4 are independently selectable. MAX FULL + FM4, Original MAX 1.0, FM4 ONLY, and CUSTOM are available. The builder adds support modules only when required.
+
+Supply your own untouched official OS 1.41 file, SHA-256 `8e2488f462c4a5656396a895f113bcd415e9900fa8709340dccf45d4cb9ed19e`. This ZIP includes no Elektron firmware or generated `.syx` image. It validates all 255 nonempty feature selections at build time; this does not make all selections hardware-tested.
+
+Back up projects and sounds, retain the official OS for recovery, and read README.md and RECOVERY.md. Existing sounds that use replaced SY CHORD waves can change timbre.
+
+Credits: Rxuting (SY FM4), Angelo-politek and SyntHack contributors (infrastructure and MAX components), Bezronczek (Deja Vu and SY CHORD Workbench implementations), and Kari Gardarsson (OS 1.41 integration, validation, builder). Full notices are in ATTRIBUTION.md and `licenses/`.

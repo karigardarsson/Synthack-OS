@@ -1,14 +1,7 @@
-# One combined MAX + FM4 hardware test
+# RC2 hardware evidence and practical checks
 
-This is a **manual plan for Kári**, not an instruction to flash automatically. Use only the MAX FULL + FM4 image whose SHA-256 is `3eaaf21ca0ed137eba14e321269d69383769da9210f818d0ad1db24356696d89`. Keep backups, the official OS 1.41 file and the hardware-proven MAX 1.0 image available. Review [RECOVERY.md](RECOVERY.md) first.
+The MAX FULL + FM4 image at SHA-256 `83febfec562351fbd01817b9f97dd000b087eb361ea9579ed6ce5d2616090cdd` passed Kari's RC2 acceptance session: normal boot; native MIDI AMP SEL1-SEL8 editing; native MIDI SYN controls; MIDI-to-FX-to-MIDI transitions; FX SYN compressor controls; FX TRIG Beat Repeat controls; FX3 access and audio; and FM4 page 2/audio.
 
-1. **Before transfer:** Verify stock input, generated output hash and selected-mod JSON. Make a backup. Use Elektron's supported OS update flow; never interrupt power or transmission.
-2. **Cold boot and stock check:** Power fully off and back on. Confirm the normal UI appears. Load a simple existing pattern and confirm ordinary trigs, transport, track selection and stock SY TONE on ALGO 0 produce audio.
-3. **FM4:** Select SY TONE, switch to SYN page 2, and confirm ALGO/RAT3/LEV3/DEC3/DET/RAT4/LEV4/DEC4 render and edit. Set ALGO 1, listen to a short pattern, change two page-2 values, place a held-trig parameter lock, save the sound and project, power-cycle and verify the edited values and lock return. This is a targeted check, not all 11 algorithms.
-4. **FX3 and compressor:** On an audio track, raise SND3 and choose each FX3 mode on FX REVERB page 2 briefly; verify audible effect and return level. On FX SYN, change compressor threshold and comparison switch at safe listening volume; verify audible response and gain-reduction display. Save/reload the kit and spot-check settings.
-5. **Beat Repeat:** While the pattern plays, hold FX-track retrig key 13, then 14. Change RPT1/RPT2 lengths and verify the repeat stops cleanly when released and transport continues in time.
-6. **Déjà Vu and CHORD:** Select DV-F and DV-T on an LFO, try MODE 2 then 8 and SPH at 0 and 64, and confirm modulation runs. Select SY CHORD WAVE 4 then 96 on a temporary sound; confirm timbre and graphics change. Recheck native WAVE 0.
-7. **Dual mono and readable values:** If an external source is available, enable mono external-input mode and change IN L and IN R separately on External Mixer; verify independent levels. Inspect supported filter/envelope/send/FX values for unit-labelled display. If no external source is available, mark dual mono **untested**, not passed.
-8. **Finish:** Reopen a saved sound, kit and pattern; check stock machine selection and normal playback once more. Record the generated image SHA, observed successes, any exception screen/photo, and any items skipped. Do not release publicly until failures and skipped essential items have been reviewed.
+For another private build, verify the stock input and output hash, back up first, and use only Elektron's supported update flow. Keep the official OS 1.41 image and RECOVERY.md available. Do not interrupt power or transmission.
 
-Use disposable copies of sounds/projects for this check. CHORD replacement can change the timbre of older sounds. On a failed boot or unstable UI, stop and follow [RECOVERY.md](RECOVERY.md); preserve photos and the exact image hash.
+This builder does not connect to hardware, back up data, transfer firmware, reset the device, or provide automatic recovery.

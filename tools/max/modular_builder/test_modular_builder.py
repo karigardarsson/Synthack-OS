@@ -85,7 +85,7 @@ class ModularBuilderTests(unittest.TestCase):
         self.assertTrue(any(p.get("hex", "").lower() == "444e8944"
                             for p in fm4["patches"] if p.get("what") == "FM4 SYN knob descriptor"))
         self.assertEqual(self.manifest["golden_sha256"]["MAX FULL + FM4"],
-                         "3eaaf21ca0ed137eba14e321269d69383769da9210f818d0ad1db24356696d89")
+                         "83febfec562351fbd01817b9f97dd000b087eb361ea9579ed6ce5d2616090cdd")
 
     @unittest.skipUnless(os.environ.get("SYNTAKT_BUILD_PROFILES") == "1", "slow firmware profile build not requested")
     def test_real_preset_builds_and_custom_wave_only(self):
