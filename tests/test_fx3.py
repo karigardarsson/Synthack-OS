@@ -73,6 +73,8 @@ class Machine:
                 uc.mem_write(int(p["ram"], 16) if p.get("append") else int(p["addr"], 16), bytes.fromhex(p["hex"]))
         uc.mem_write(RET, b"\x4e\x75")
         uc.mem_write(0x444E_1334, struct.pack(">I", UI))
+        uc.mem_write(0x444E_13F4, struct.pack(">I", 0x5000_7000))
+        uc.mem_write(0x4001_FF74, bytes((0x70, 12, 0x4E, 0x75)))  # default active FX track
         self.emac = UnicornEmac(uc, [int(a, 16) for a in self.spec["emac_sites"]])
 
     def call(self, fn, args=(), regs=None):
@@ -99,6 +101,14 @@ class Machine:
 
 def frac(a, b):
     return ((a >> 16) * (b >> 16)) << 1
+
+
+def fx_context(m, track):
+    """Run the FX3 ownership predicate against a tiny native-track selector stub."""
+    m.put(0x444E_13F4, [0x5000_7000])
+    m.uc.mem_write(0x4001_FF74, bytes((0x70, track, 0x4E, 0x75)))  # moveq #track,d0 ; rts
+    m.uc.ctl_flush_tb()
+    return m.call(m.sym["fx3_active_context"])
 
 
 def track(m, t, gl, gr, v, mute=0):
@@ -371,7 +381,7 @@ def test_mix_hook_replays_pushes(m):
 
 
 def test_page_slots_and_reverb_tab(m):
-    m.call(m.sym["fx3_page_stub"])
+    assert fx_context(m, 12) == 1
     assert m.longs(0x41B9_F81C, 9) == [246, 247, 248, 250, 251, 252, 249, 253, 0]
     m.call(m.sym["fx3_amp_stub"])                               # AMP 1: ... DEL REV SND3 VOL; AMP 2: PAN in E
     assert m.longs(0x41B9_F624, 1) == [72] and m.longs(0x41B9_F650, 1) == [72]
@@ -380,6 +390,7 @@ def test_page_slots_and_reverb_tab(m):
 
 
 def test_parameters_through_vparams(m):
+    assert fx_context(m, 12) == 1
     for name, pid in IDS.items():
         assert m.call(KIT, [0x5000_0000, pid]) == 1
     assert m.call(GET, [0x5000_0000, IDS["VOL"]]) == 100 << 8
@@ -406,7 +417,7 @@ def test_texts(m, fn, v, text):
 
 def test_patched_bytes():
     want = {0x4008_F3A0: "ae000900ae810900", 0x4008_FB04: "486efed848798000e0f0",
-            0x4019_4E2A: "42b941b9f83c", 0x4019_4A50: "42b941b9f6a0", 0x4003_588C: "7201",
+            0x4019_4A50: "42b941b9f6a0", 0x4003_588C: "7201",
             0x4003_5890: "203c401c7fa8", 0x4019_49EA: "42b941b9f674", 0x4004_2CE0: "4fefffa048d77cfc",
             0x4008_F828: "4eb940096890", 0x4004_1E84: "605c"}
     sec3 = eft.unpack(SY, ROOT / "unpacked" / SY.stem, ids=[3])[3].read_bytes()
@@ -431,8 +442,9 @@ def stub_calls(m, addr, nargs, fn, args):
 def test_send_graphics():
     spec = json.loads(MODS[1].read_text(encoding="utf-8"))
     fixes = {int(p["addr"], 16): p["hex"] for p in spec["patches"] if not p.get("append")}
-    assert fixes[0x4018_F356] == "41b9dbd0" and fixes[0x4018_F372] == "41b9d5d0"   # DEL (249): come la mandata DEL
-    assert fixes[0x4018_B37A] == "41b9d730" and fixes[0x4018_B396] == "41b9d5d0"   # SND3 (72): icona MOD + barra
+    assert 0x4019_4E2A not in fixes                              # stock Source-page setup is untouched
+    assert 0x4018_F356 not in fixes and 0x4018_F372 not in fixes # FX3 object changes are runtime scoped
+    assert fixes[0x4018_B37A] == "41b9d730" and fixes[0x4018_B396] == "41b9d5d0"   # SND3 remains native
 
 
 def test_type_drawn_as_text(m):
@@ -445,6 +457,8 @@ def test_type_drawn_as_text(m):
 
 @pytest.mark.parametrize("page, target", [(25, 0x4003_A244), (21, 0x4004_2CE8), (20, 0x4004_2CE8)])
 def test_draw_hook_routes_only_our_page(m, page, target):
+    if page == 25:
+        assert fx_context(m, 12) == 1
     obj, vec = 0x5000_6000, 0x5000_6100
     m.put(vec, [21, page])
     m.put(obj + 124, [vec])
@@ -478,14 +492,22 @@ def test_more_texts(m, fn, v, text):
     assert raw[:raw.index(0)].decode() == text
 
 
-def test_object_fields_like_del():
-    spec = json.loads(MODS[1].read_text(encoding="utf-8"))
-    fixes = {int(p["addr"], 16): p["hex"] for p in spec["patches"] if not p.get("append")}
-    for a in (0x4018_F234, 0x4018_F290, 0x4018_F2E2, 0x4018_F476):
-        assert fixes[a] == "2f03"                              # prototipo d3, come 250 (DEL)
-    for a in (0x4018_F23C, 0x4018_F292, 0x4018_F47E):
-        assert fixes[a][2:] == "00"                            # tipo 0
-    assert fixes[0x4018_F2EA] == "42b941ba4b84"
+def test_fx3_claim_restores_native_midi_objects_and_descriptors(m):
+    ids = (246, 247, 248, 250, 251, 252, 249, 253)
+    desc = lambda pid: 0x4022_D59C + 52 * pid
+    slots = [0x6000 + i for i in range(9)]
+    m.put(0x41B9_F81C, slots)
+    m.put(obj(250), [0xAB00 + i for i in range(21)])
+    before_obj = {pid: bytes(m.uc.mem_read(obj(pid), 84)) for pid in ids}
+    before_desc = {pid: bytes(m.uc.mem_read(desc(pid), 52)) for pid in ids}
+    assert fx_context(m, 12) == 1
+    assert m.longs(0x41B9_F81C, 9) == [246, 247, 248, 250, 251, 252, 249, 253, 0]
+    assert any(bytes(m.uc.mem_read(desc(pid), 52)) != before_desc[pid] for pid in ids)
+    assert fx_context(m, 11) == 0
+    assert m.longs(0x41B9_F81C, 9) == slots
+    for pid in ids:
+        assert bytes(m.uc.mem_read(obj(pid), 84)) == before_obj[pid]
+        assert bytes(m.uc.mem_read(desc(pid), 52)) == before_desc[pid]
 
 
 def test_send_to_delay_adds_scaled_chorus(m):
@@ -635,15 +657,14 @@ def test_pattern_change_follows_the_kit(m):
     assert m.uc.mem_read(m.sym["fx3_p"], 1)[0] == 3
 
 
-@pytest.mark.parametrize("t, n1, n3, n3l, page", [(0, "SPD", "TIME", "Chorus Delay", "Chorus"),
-                                                  (1, "SPD", "TIME", "Flanger Delay", "Flanger"),
-                                                  (2, "SPD", "FREQ", "Phaser Frequency", "Phaser"),
-                                                  (3, "SRR", "DRV", "Crusher Drive", "Crusher")])
-def test_names_follow_the_type(m, t, n1, n3, n3l, page):
+@pytest.mark.parametrize("t, n1, n3, n3l", [(0, "SPD", "TIME", "Chorus Delay"),
+                                             (1, "SPD", "TIME", "Flanger Delay"),
+                                             (2, "SPD", "FREQ", "Phaser Frequency"),
+                                             (3, "SRR", "DRV", "Crusher Drive")])
+def test_names_follow_the_type(m, t, n1, n3, n3l):
     m.param("TYPE", t)
     assert (text(m, m.sym["fx3_n1_s"]), text(m, m.sym["fx3_n3_s"])) == (n1, n3)
-    assert (text(m, m.sym["fx3_n3_l"]), text(m, m.sym["fx3_page_l"])) == (n3l, page)
-
+    assert text(m, m.sym["fx3_n3_l"]) == n3l
 
 @pytest.mark.parametrize("t, fn, v, want", [
     (1, "fx3_fmt_fdbk", 64, "0%"), (1, "fx3_fmt_fdbk", 127, "+95%"), (1, "fx3_fmt_fdbk", 0, "-95%"),
@@ -755,7 +776,7 @@ def test_time_jumps_glide_and_reads_stay_in_the_line(m, t):
             m.param("TIME", 127 if (k // 40) % 2 == 0 else 0)
         run_block(m)
     m.uc.hook_del(h)
-    line = [a for a in seen if a >= (MA + 0xDC00) and not (MA + 0xDFFC) <= a < (MA + 0xE000)]  # tranne FDBK
+    line = [a for a in seen if MA + 0xE000 <= a < MA + 0xF000]
     assert line and min(line) >= (MA + 0xE000) and max(line) < (MA + 0xF000)
 
 
@@ -772,10 +793,10 @@ def obj(i):
 
 @pytest.mark.parametrize("t", [0, 1, 2, 3, 0])
 def test_icons_and_slots_follow_the_type(m, t):
+    assert fx_context(m, 12) == 1
     protos = {a for row in LOOK.values() for pair in row for a in pair if a}
     for a in protos:                                            # prototipi "costruiti all'avvio": firme
         m.put(a, [a, a + 1, a + 2, a + 3])
-    m.call(m.sym["fx3_page_stub"])
     if t == 0:
         m.param("TYPE", 3)                                      # da un altro tipo
     m.param("TYPE", t)

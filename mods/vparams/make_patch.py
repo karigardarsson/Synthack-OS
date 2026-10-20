@@ -43,15 +43,14 @@ def wsl(cmd: str) -> str:
     return r.stdout
 
 
-def entry(slot: int, pid: int, get: int, put: int, what: str) -> dict:
-    """Patch accodata che registra un parametro virtuale nel posto 'slot' della tabella."""
+def entry(slot: int, pid: int, get: int, put: int, what: str, guard: int = 0) -> dict:
+    """Register one virtual id; guard is an optional zero-argument ownership predicate."""
     if not 0 <= slot < VP_N or not 0 < pid < 505:
         raise ValueError((slot, pid))
-    addr = VP_TABLE + 12 * slot
-    return {"section": 3, "addr": f"{IMG + addr - RAM:#010X}", "len": 12, "append": True,
-            "hex": struct.pack(">HHII", pid, 0, get, put).hex(), "ram": f"{addr:#010x}",
-            "what": f"vparams[{slot}]: id {pid} -> {what}"}
-
+    addr = VP_TABLE + 16 * slot
+    return {"section": 3, "addr": f"{IMG + addr - RAM:#010X}", "len": 16, "append": True,
+            "hex": struct.pack(">HHIII", pid, 0, get, put, guard).hex(), "ram": f"{addr:#010x}",
+            "what": f"vparams[{slot}]: id {pid} -> {what}" + (" (scoped)" if guard else "")}
 
 def main() -> None:
     stock = REPO / "firmware" / "Syntakt_OS1.41.syx"

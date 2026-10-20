@@ -26,7 +26,7 @@ Static C++ initializer `0x401885D2–0x401968F4` builds page objects in BSS (44 
 
 Slots are read at draw time: changing them at runtime changes the page (0 = empty slot). AMP slots: page 1 `0x41B9F60C` / `0x41B9F638` (AHD / ADSR variant), page 2 `0x41B9F664` / `0x41B9F690`.
 
-- Page elements: array of 37 at `0x41B9F3C8` (44 B each), index → element `0x4007B9D0`. Page 25 ("OB8 / Outbox 8") is a Digitakt leftover, always empty: fx3 uses it.
+- Page elements: array of 37 at `0x41B9F3C8` (44 B each), index → element `0x4007B9D0`. Page 25 ("OB8 / Outbox 8") is a stock page. FX3 may borrow its slots only in the FX context; it is not globally free.
 - **Tabs** are page widgets built from constant arrays of page indices + count (`0x4017DA3A`), e.g. DELAY `{20}` at `0x401C7FAC`, REVERB `{21}` at `0x401C7FA8` (built at `0x40035890`), generic class `0x40042B58`. A tab with N pages cycles them on its key; widget +124 = page vector, +144 = current position. The page's virtual +188 returns the id under an encoder.
 - Per-object fields before the prototypes: +0 type (0 = plain value, others change the encoder step: MIDI-track ids use 4/5, toggles 12), +4 value prototype (`d3` = discrete/standard, as in LFO MODE).
 
