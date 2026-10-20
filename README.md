@@ -20,7 +20,22 @@ Unofficial community mod bundle for **Elektron Syntakt OS 1.41**, built locally 
 | SyntHack splash | Retains the upstream SyntHack v0.8.1 startup graphic. MAX 1.0 is the bundle version, not a changed Elektron OS version. | Angelo-politek / SyntHack |
 | Heap modarea and vparams | Reserves 64 KiB of the OS heap for mod code and provides shared kit-parameter dispatch. Infrastructure supporting the musical mods. | Angelo-politek / SyntHack |
 
-The exact 31-wave list is in the release notes. MAX is a fixed build, not the Workbench wave editor. Existing sounds using replaced waves will change timbre. **SY FM4 is not included**: it remains separate development, with unresolved complete page-2 editing and no unified hardware-tested build.
+The exact 31-wave list is in the release notes. MAX is a fixed build, not the Workbench wave editor. Existing sounds using replaced waves will change timbre. **SY FM4 is not included in fixed MAX 1.0**; the separate experimental modular-builder profile is documented below and is not a unified hardware-tested claim.
+
+## Modular Builder RC1 documentation
+
+The experimental modular builder adds SY FM4 as an eighth selectable feature
+group and can build MAX FULL + FM4, Original MAX 1.0, FM4 ONLY or a non-empty
+custom selection. Start with the [MAX Modular Builder user guide](docs/MAX_USER_GUIDE.md)
+and keep the [Quick Reference](docs/MAX_QUICK_REFERENCE.md) nearby at the
+instrument. The release navigation is [modular-builder README](tools/max/modular_builder/README.md),
+with [validation](tools/max/modular_builder/VALIDATION.md), [recovery](tools/max/modular_builder/RECOVERY.md),
+[hardware checklist](tools/max/modular_builder/HARDWARE_TEST.md) and [feedback](tools/max/modular_builder/FEEDBACK.md).
+
+RC1 is experimental: the 255 non-empty feature selections are structurally
+BUILD-VALIDATED, not individually hardware-proven. The documented MIDI
+SYN/FX3 UI regression remains under investigation; the guide does not present
+it as fixed.
 
 ## Credits and source
 
