@@ -72,6 +72,9 @@ LOAD = 0x4000_0400
 MODAREA_RAM, MODAREA_IMG, MODAREA_SIZE = modarea_layout.RAM, modarea_layout.IMG, 0x2000
 CODE_BASE = MODAREA_RAM + 0x0000        # offset 0 dell'area mod
 FREE_END = MODAREA_RAM + MODAREA_SIZE
+UI_BASE, UI_END = MODAREA_RAM + 0x6300, MODAREA_RAM + 0x7000
+DRAW_HOOK, DRAW_ORIG = 0x4003_A244, "4fefffb048d7"  # generic SourcePage 8-slot draw prologue
+CFLAGS = "-mcpu=54418 -O2 -ffreestanding -fno-builtin -nostdlib -fno-pic -fno-common -Wall -Wextra"
 HOOK, HOOK_END = 0x4009_053E, 0x4009_0562
 HOOK_ORIG = "0c810000ffff6f06223c0000ffff374100460c830000ffff6f06263c0000ffff37430048"
 
@@ -80,8 +83,8 @@ HOOK_ORIG = "0c810000ffff6f06223c0000ffff374100460c830000ffff6f06263c0000ffff374
 # l'OS mette sulle pagine in certi modi: 59 = GAIN al posto di RESO nei filtri EQ dei track, 122 = REV
 # sulla pagina 2 del MIXER, 91/101 = SLEW al posto di SPH degli LFO, 127 = PAN al posto di BAL. Con le
 # nostre funzioni al loro posto quelle manopole mostravano il compressore e non funzionavano.
-# Ora: 262..268 = "CC1..CC7 Select" dei track MIDI della Digitakt (nessun track MIDI sulla Syntakt,
-# pagina "CC Select" mai mostrata, nessun CC MIDI, nessun alias): gli id vecchi tornano come nell'OS.
+# 262..268 are native MIDI CC Select descriptors on Syntakt. They are borrowed only while the
+# active SourcePage belongs to the FX track, then their captured MIDI state is restored.
 DESC = 0x4022_D59C                      # descrittori: 52 B, indice = id logico
 PARAMS = [  # (nome breve, nome lungo, id, massimo)
     ("THR", "Comp Threshold", 262, 0x7F00),
@@ -157,6 +160,44 @@ def build_blob(defs: dict[str, int], incs: dict[str, str]) -> tuple[bytes, dict[
             emac.append(int(m[1], 16))
     return blob, syms, emac, dis
 
+def build_ui_blob(defs: dict[str, int], primary_syms: dict[str, int]) -> tuple[bytes, dict[str, int], str]:
+    """Build the context-local compressor UI helper in the FM4-compatible +0x6300 gap."""
+    with tempfile.TemporaryDirectory(prefix="mcomp-ui-") as tmp:
+        tmp = Path(tmp)
+        shutil.copy(HERE / "comp_ui.c", tmp / "comp_ui.c")
+        shutil.copy(HERE / "comp_ui.S", tmp / "comp_ui.S")
+        w = eft.to_wsl_path(tmp)
+        bu = f"R={WSL_BINUTILS}; export LD_LIBRARY_PATH=$R/usr/lib/x86_64-linux-gnu; cd {w}; "
+        gcc = "$R/usr/bin/m68k-linux-gnu-gcc-13 -B$R/usr/libexec/gcc/m68k-linux-gnu/13/ -B$R/usr/bin/m68k-linux-gnu-"
+        names = [f"n_{n.lower()}_{kind}" for n, _, _, _ in PARAMS for kind in ("s", "l")]
+        missing = [name for name in names + ["comp_init"] if name not in primary_syms]
+        if missing:
+            raise SystemExit("missing compressor UI symbols: " + ", ".join(missing))
+        macros = [f"-DCOMP_INIT={primary_syms['comp_init']:#x}"]
+        macros += [f"-D{k}={v:#x}" for k, v in defs.items() if k.startswith("D_")]
+        macros += [f"-D{name.upper()}={primary_syms[name]:#x}" for name in names]
+        warn = wsl(bu + f"{gcc} {CFLAGS} {' '.join(macros)} -c comp_ui.c -o ui.o")
+        if "warning" in warn:
+            raise SystemExit(warn)
+        wsl(bu + "$R/usr/bin/m68k-linux-gnu-as -mcpu=54418 comp_ui.S -o ui_s.o")
+        wsl(bu + f"$R/usr/bin/m68k-linux-gnu-ld -N -Ttext={UI_BASE:#x} -e comp_draw_hook -o ui.elf ui_s.o ui.o")
+        undef = wsl(bu + "$R/usr/bin/m68k-linux-gnu-nm -u ui.elf").strip()
+        if undef:
+            raise SystemExit("unexpected compressor UI undefined symbols: " + undef)
+        heads = wsl(bu + "$R/usr/bin/m68k-linux-gnu-objdump -h ui.elf")
+        for name, size in re.findall(r"^\s*\d+\s+(\.\S+)\s+([0-9a-f]+)", heads, re.M):
+            if name in (".bss", ".sbss") and int(size, 16):
+                raise SystemExit("compressor UI helper must not use BSS")
+        wsl(bu + "$R/usr/bin/m68k-linux-gnu-objcopy -O binary -j .text -j .rodata -j .data ui.elf ui.bin")
+        syms = {}
+        for line in wsl(bu + "$R/usr/bin/m68k-linux-gnu-nm ui.elf").splitlines():
+            parts = line.split()
+            if len(parts) == 3:
+                syms[parts[2]] = int(parts[0], 16)
+        dis = wsl(bu + "$R/usr/bin/m68k-linux-gnu-objdump -d -m m68k:isa-c:emac ui.elf")
+        blob = (tmp / "ui.bin").read_bytes()
+    return blob, syms, dis
+
 
 def main() -> None:
     ap = argparse.ArgumentParser()
@@ -170,7 +211,7 @@ def main() -> None:
 
     # salvataggio: 4 parole = valore XOR default (15 bit) + un bit di RAT ciascuna; zero = default, spento
     defs = {"C_OCT": C_OCT, "D_THR": a.thr, "D_ATK": a.atk, "D_REL": a.rel, "D_MUP": a.mup,
-            "GFX_ON": 0 if a.no_drive_knob else 1}
+            "D_RAT": a.rat * RAT_STEP, "GFX_ON": 0 if a.no_drive_knob else 1}
     defs.update({f"ID_{n}": i for n, _, i, _ in PARAMS})
     defs.update({f"TY_{n}": TYPES[n] for n, _, _, _ in PARAMS})
     nl = "\n"
@@ -185,6 +226,9 @@ def main() -> None:
     stock = REPO / "firmware" / "Syntakt_OS1.41.syx"
     sec3 = eft.unpack(stock, REPO / "unpacked" / stock.stem, ids=[3])[3].read_bytes()
     blob, syms, emac, dis = build_blob(defs, incs)
+    ui_blob, ui_syms, ui_dis = build_ui_blob(defs, syms)
+    if UI_BASE + len(ui_blob) > UI_END:
+        raise SystemExit(f"compressor UI helper does not fit: {len(ui_blob)} B")
     end = CODE_BASE + len(blob)
     if end > FREE_END:
         raise SystemExit(f"non ci sta: {len(blob)} B (liberi {FREE_END - CODE_BASE})")
@@ -202,17 +246,22 @@ def main() -> None:
 
     ui = []
     for slot, (n, _, i, _) in enumerate(PARAMS):      # parametri virtuali (mods/vparams), posti 0..6
-        ui.append(vparams.entry(VP_SLOT0 + slot, i, syms["get_hook"], syms["set_hook"], f"master-comp {n}"))
+        ui.append(vparams.entry(VP_SLOT0 + slot, i, syms["get_hook"], syms["set_hook"], f"master-comp {n}", ui_syms["comp_active_context"]))
     defaults = {"THR": a.thr, "ATK": a.atk, "REL": a.rel, "MUP": a.mup, "RAT": a.rat * RAT_STEP, "GR": 0, "COMP": 0x100}
-    for n, ln, i, mx in PARAMS:
-        r = DESC + 52 * i
-        ui.append(fixed(r + 8, struct.pack(">III", 0, mx, defaults[n]), f"id {i} -> {n}: min, max, default"))
-        ui.append(fixed(r + 40, struct.pack(">I", syms[f"n_{n.lower()}_l"]), f"id {i}: nome lungo '{ln}'"))
-        ui.append(fixed(r + 48, struct.pack(">I", syms[f"n_{n.lower()}_s"]), f"id {i}: nome breve '{n}'"))
-    for addr, orig, new, what in INIT_FIX:
-        ui.append(fixed(addr, bytes.fromhex(new), what, orig))
-    ui.append(fixed(PAGE_HOOK, struct.pack(">HI", 0x4EB9, syms["comp_page_stub"]),
-                    "pagina SYN della FX track all'avvio: caselle A..G e init (jsr comp_page_stub)", PAGE_ORIG))
+    ui.append(fixed(DRAW_HOOK, struct.pack(">HI", 0x4EF9, ui_syms["comp_draw_hook"]),
+                    "generic SourcePage draw: scope compressor descriptors and slots to the FX context", DRAW_ORIG))
+
+    primary_symbols = {
+        "comp_hook", "scale", "k_const", "k_state", "k_logt", "k_expt", "k_fallback",
+        "k_ids", "k_dt", "k_off", "kit_hook", "get_hook", "set_hook", "convert",
+        "comp_page_stub", "changed", "k_seen", "stor", "getv", "setv", "getr", "setr", "tab_fmt", "null_mgr",
+        "comp_init", "k_fmts", "meter", "meter_val", "k_meter", "k_tick", "k_shown", "k_on",
+        "n_thr_s", "n_thr_l", "n_atk_s", "n_atk_l", "n_rel_s", "n_rel_l", "n_mup_s", "n_mup_l",
+        "n_rat_s", "n_rat_l", "n_gr_s", "n_gr_l", "n_comp_s", "n_comp_l",
+    }
+    symbols = {k: f"{v:#010x}" for k, v in sorted(syms.items()) if k in primary_symbols}
+    symbols.update({k: f"{v:#010x}" for k, v in ui_syms.items()
+                    if k in ("comp_draw_hook", "comp_active_context", "comp_ui_update")})
 
     spec = {
         "name": "master-comp", "os": "1.41", "requires": ["modarea", "vparams"],
@@ -223,19 +272,18 @@ def main() -> None:
                        " ".join(f"{k.upper()}={getattr(a, k):#06x}" for k in ("thr", "atk", "rel", "mup")) +
                        f" RAT={a.rat}",
         "generated_by": "mods/master-comp/make_patch.py",
-        "params": [f"{v:#06x}" for v in params],   # THR ATK REL MUP (0..0x7F00), RAT (1..8)
+        "params": [f"{v:#06x}" for v in params],
         "storage": {"kit_block": "L2+70 (puntatore 0x800030BC)", "global_block": "0x41B9D3B0",
                     "word_offsets": [12, 14, 2, 8]},
-        "symbols": {k: f"{v:#010x}" for k, v in sorted(syms.items())
-                    if k in ("comp_hook", "scale", "k_const", "k_state", "k_logt", "k_expt", "k_fallback",
-                             "k_ids", "k_dt", "k_off", "kit_hook", "get_hook", "set_hook", "convert",
-                             "comp_page_stub", "changed", "k_seen", "stor", "getv", "setv", "getr", "setr", "tab_fmt", "null_mgr",
-                             "comp_init", "k_fmts", "meter", "meter_val", "k_meter", "k_tick", "k_shown", "k_on")},
+        "symbols": symbols,
         "emac_sites": [f"{x:#010x}" for x in emac],
         "patches": [
             {"section": 3, "addr": f"{MODAREA_IMG + CODE_BASE - MODAREA_RAM:#010X}", "len": len(blob),
              "append": True, "hex": blob.hex(), "ram": f"{CODE_BASE:#010x}",
              "what": "(area mod) routine del compressore + costanti del preset + stato + tabelline"},
+            {"section": 3, "addr": f"{MODAREA_IMG + UI_BASE - MODAREA_RAM:#010X}", "len": len(ui_blob),
+             "append": True, "hex": ui_blob.hex(), "ram": f"{UI_BASE:#010x}",
+             "what": "(area mod +0x6300) scoped compressor UI ownership helper"},
             {"section": 3, "addr": f"{HOOK:#010X}", "len": len(tramp),
              "expect_sha256": sha(sec3[HOOK - LOAD:HOOK - LOAD + len(tramp)]), "hex": tramp.hex(),
              "what": "trampolino: jsr comp_hook ; bra.w 0x40090562 (sostituisce limite e scrittura dei CV del master)"},

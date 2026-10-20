@@ -50,13 +50,30 @@
     "kit_hook": "0x444e3d86",
     "meter": "0x444e3b82",
     "meter_val": "0x444e3be4",
+    "n_atk_l": "0x444e57e7",
+    "n_atk_s": "0x444e57e3",
+    "n_comp_l": "0x444e583a",
+    "n_comp_s": "0x444e5835",
+    "n_gr_l": "0x444e5826",
+    "n_gr_s": "0x444e5823",
+    "n_mup_l": "0x444e5808",
+    "n_mup_s": "0x444e5804",
+    "n_rat_l": "0x444e5818",
+    "n_rat_s": "0x444e5814",
+    "n_rel_l": "0x444e57f7",
+    "n_rel_s": "0x444e57f3",
+    "n_thr_l": "0x444e57d4",
+    "n_thr_s": "0x444e57d0",
     "null_mgr": "0x444e4004",
     "scale": "0x444e4008",
     "set_hook": "0x444e3e06",
     "setr": "0x444e3cbc",
     "setv": "0x444e3c66",
     "stor": "0x444e3c12",
-    "tab_fmt": "0x444e3f50"
+    "tab_fmt": "0x444e3f50",
+    "comp_active_context": "0x444e9bf4",
+    "comp_draw_hook": "0x444e9bd0",
+    "comp_ui_update": "0x444e9ec0"
   },
   "emac_sites": [
     "0x444e38d8",
@@ -101,6 +118,15 @@
     },
     {
       "section": 3,
+      "addr": "0X4034E300",
+      "len": 1500,
+      "append": true,
+      "hex": "4feffff048d703034eb9444e9ec04cd703034fef00104fefffb048d77cfc4ef94003a24c2079444e13f44fefffd048d77cfc4a886714486800304eb94001ff74588f720cb280670000c04ab9444e9ec8670000aa4bf9444ea19e47f9444e9ef049f9444e9f7c243c444ea1ac301d43ec00083200c0fc00542c40ddfc41b9fa242040068041b9fa48c2fc0034d1fc41b9fa382441d5fc4022d59c25530008256b0004000c256b00080010256b000c0028256b001000302c942d6c00040004209958882169000c000c2169001c002cb1c066ec47eb001449ec0038bbc2668e207c41b9f95043f90294a58020f18800b1fc41b9f97066f442b9444e9ec84cd77cfc42804fef00304e752439444e9ec84a82670c70014cd77cfc4fef00304e754ab9444e9ecc660000ac4bf9444ea19e47f9444e9ef049f9444e9f7c301d43ec000842813600c0fc00542c40ddfc41b9fa242040d1fc41b9fa38c6fc00342443d5fc4022d59c26aa0008276a000c0004276a00100008276a0028000c276a003000102896296e0004000422d0588852817a042368000c000c2368002c001cba8166e847eb001449ec0038bbfc444ea1ac668a207c41b9f95043f90294a580239088005888b1fc41b9f97066f2700123c0444e9ecc4eb9444e3f74263c444ea166283c444ea19e49f9444ea15845f9444ea1822c3c41b9f94c47f9444ea13c9c8a2f43002c2e3c41b9fa24260c28444df9444ea1204bf9444ea104280b301c20433218266f002c58af002c3a002608cafc00342045d1fc4022d59c3a0042a80008215a000c215b0010215e002871c0215d0030cafc00542245d3fc41b9fa243a01cafc00544a41670a204547f07804235300047203b282642e41f9444ea14a32302a00c2fc00542041d1fc41b9fa242368002400242368002800282368002c002c236800300030264452823a1b3205280bc2fc00544a4567202041d1fc41b9fa242368004400442368004800482368004c004c236800500050258068007007b0826600ff3a7201700123c1444e9ec86000fe264ef9444e9bf400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000444e57d0444e57e3444e57f3444e5804444e5814444e5823444e5835444e57d4444e57e7444e57f7444e5808444e5818444e5826444e583a0000007a00000000007d003b00730090007a005b0065007d003b00730090007a005b0065007d003b00000000400000001800000020000000200000003f80000000000000010000007f0000007f0000007f0000007f0000007f0000007f00000001000106010701080109010a010b010c",
+      "ram": "0x444e9bd0",
+      "what": "(area mod +0x6300) scoped compressor UI ownership helper"
+    },
+    {
+      "section": 3,
       "addr": "0X4009053E",
       "len": 10,
       "expect_sha256": "286e6d5c084c7e03c3907206d5aaf8d97b5b2391247b057fcc436e3653e506b8",
@@ -112,375 +138,71 @@
       "addr": "0X40350000",
       "len": 16,
       "append": true,
-      "hex": "01060000444e3da4444e3e0600000000",
+      "hex": "01060000444e3da4444e3e06444e9bf4",
       "ram": "0x444eb8d0",
-      "what": "vparams[0]: id 262 -> master-comp THR"
+      "what": "vparams[0]: id 262 -> master-comp THR (scoped)"
     },
     {
       "section": 3,
       "addr": "0X40350010",
       "len": 16,
       "append": true,
-      "hex": "01070000444e3da4444e3e0600000000",
+      "hex": "01070000444e3da4444e3e06444e9bf4",
       "ram": "0x444eb8e0",
-      "what": "vparams[1]: id 263 -> master-comp ATK"
+      "what": "vparams[1]: id 263 -> master-comp ATK (scoped)"
     },
     {
       "section": 3,
       "addr": "0X40350020",
       "len": 16,
       "append": true,
-      "hex": "01080000444e3da4444e3e0600000000",
+      "hex": "01080000444e3da4444e3e06444e9bf4",
       "ram": "0x444eb8f0",
-      "what": "vparams[2]: id 264 -> master-comp REL"
+      "what": "vparams[2]: id 264 -> master-comp REL (scoped)"
     },
     {
       "section": 3,
       "addr": "0X40350030",
       "len": 16,
       "append": true,
-      "hex": "01090000444e3da4444e3e0600000000",
+      "hex": "01090000444e3da4444e3e06444e9bf4",
       "ram": "0x444eb900",
-      "what": "vparams[3]: id 265 -> master-comp MUP"
+      "what": "vparams[3]: id 265 -> master-comp MUP (scoped)"
     },
     {
       "section": 3,
       "addr": "0X40350040",
       "len": 16,
       "append": true,
-      "hex": "010a0000444e3da4444e3e0600000000",
+      "hex": "010a0000444e3da4444e3e06444e9bf4",
       "ram": "0x444eb910",
-      "what": "vparams[4]: id 266 -> master-comp RAT"
+      "what": "vparams[4]: id 266 -> master-comp RAT (scoped)"
     },
     {
       "section": 3,
       "addr": "0X40350050",
       "len": 16,
       "append": true,
-      "hex": "010b0000444e3da4444e3e0600000000",
+      "hex": "010b0000444e3da4444e3e06444e9bf4",
       "ram": "0x444eb920",
-      "what": "vparams[5]: id 267 -> master-comp GR"
+      "what": "vparams[5]: id 267 -> master-comp GR (scoped)"
     },
     {
       "section": 3,
       "addr": "0X40350060",
       "len": 16,
       "append": true,
-      "hex": "010c0000444e3da4444e3e0600000000",
+      "hex": "010c0000444e3da4444e3e06444e9bf4",
       "ram": "0x444eb930",
-      "what": "vparams[6]: id 268 -> master-comp COMP"
+      "what": "vparams[6]: id 268 -> master-comp COMP (scoped)"
     },
     {
       "section": 3,
-      "addr": "0X40230ADC",
-      "len": 12,
-      "expect_sha256": "1620f2fb9d6da3caa83a13f883ab29c14b294259fe1b9fcf54c32fce1db82253",
-      "hex": "0000000000007f0000004000",
-      "what": "id 262 -> THR: min, max, default"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230AFC",
-      "len": 4,
-      "expect_sha256": "6a5b246390c990ccbe41689c76c1c3aee1c2250d2cb9c52a93f6a8ac83974b34",
-      "hex": "444e57d4",
-      "what": "id 262: nome lungo 'Comp Threshold'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230B04",
-      "len": 4,
-      "expect_sha256": "d2eacf2c034239df25ebc51a902c896b205ab6794d25441c30e480b09338fa43",
-      "hex": "444e57d0",
-      "what": "id 262: nome breve 'THR'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230B10",
-      "len": 12,
-      "expect_sha256": "986c0abb0dd1339183ec6eddb0bad69314acb6b8b2f4511328acd5664308ae72",
-      "hex": "0000000000007f0000001800",
-      "what": "id 263 -> ATK: min, max, default"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230B30",
-      "len": 4,
-      "expect_sha256": "e1a377902c287fde909f3d015baa19d7a6e51116c9e1e459905a59bd4875f84b",
-      "hex": "444e57e7",
-      "what": "id 263: nome lungo 'Comp Attack'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230B38",
-      "len": 4,
-      "expect_sha256": "8dbd4905f3f329c58e95af699032c63df4fba448cb0b2f650a885d400afdf9d9",
-      "hex": "444e57e3",
-      "what": "id 263: nome breve 'ATK'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230B44",
-      "len": 12,
-      "expect_sha256": "863a8fb85edfc731594d4dd0bd2cc82a93d16c3b95126d6cf8e242201d4f3ffd",
-      "hex": "0000000000007f0000002000",
-      "what": "id 264 -> REL: min, max, default"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230B64",
-      "len": 4,
-      "expect_sha256": "1f80fda94b3ef1531c0fecf7ff3abd7da79786aac03dd04e3f904faf552ef305",
-      "hex": "444e57f7",
-      "what": "id 264: nome lungo 'Comp Release'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230B6C",
-      "len": 4,
-      "expect_sha256": "1eb6accdc7dd7595ba7f250c0b4ac5dc606449900083202d3a0b1fb44a349b23",
-      "hex": "444e57f3",
-      "what": "id 264: nome breve 'REL'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230B78",
-      "len": 12,
-      "expect_sha256": "d172bc6c08176c5dfe971b6699930e03f3786ded8e02c9da9793a41279737a52",
-      "hex": "0000000000007f0000002000",
-      "what": "id 265 -> MUP: min, max, default"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230B98",
-      "len": 4,
-      "expect_sha256": "f01aa44b5f1ef50ce0c872a095c52c98553bc508c97b435edc7f9c336b894736",
-      "hex": "444e5808",
-      "what": "id 265: nome lungo 'Comp Makeup'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230BA0",
-      "len": 4,
-      "expect_sha256": "8906386fe451474cb328daab653c08407e59dc8e79cf0c145198b4f220f8574f",
-      "hex": "444e5804",
-      "what": "id 265: nome breve 'MUP'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230BAC",
-      "len": 12,
-      "expect_sha256": "b09a26ad3ebb58eb5cf2efa4807bf5683d8159a713496794f44933cc9516b257",
-      "hex": "0000000000007f0000003f80",
-      "what": "id 266 -> RAT: min, max, default"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230BCC",
-      "len": 4,
-      "expect_sha256": "9e2445e2c1233dd9bb3fce4f276e19927343830b2b95f45b54fe2e9a4885c72b",
-      "hex": "444e5818",
-      "what": "id 266: nome lungo 'Comp Ratio'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230BD4",
-      "len": 4,
-      "expect_sha256": "ca6f452190d0c30de70ef8671ed8108aae10eb9639f4c9f8c8363a54b0b55dd1",
-      "hex": "444e5814",
-      "what": "id 266: nome breve 'RAT'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230BE0",
-      "len": 12,
-      "expect_sha256": "14f55231089e9a6661ca16f7c3016d569bcd9ee79ed649cd2538962d76a0b49d",
-      "hex": "0000000000007f0000000000",
-      "what": "id 267 -> GR: min, max, default"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230C00",
-      "len": 4,
-      "expect_sha256": "d82e5cbcdb871f805617bbc80e8cf1541870cec8de3ad5e674f01343cce62ffd",
-      "hex": "444e5826",
-      "what": "id 267: nome lungo 'Gain Reduction'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230C08",
-      "len": 4,
-      "expect_sha256": "d94f6f0f62975998191eb6d212f07c2b91362da63ed837061587d07fa687dc6d",
-      "hex": "444e5823",
-      "what": "id 267: nome breve 'GR'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230C14",
-      "len": 12,
-      "expect_sha256": "357a517566733253873f2cc52a971987e1c229db46a0b8fb7c09977723d46053",
-      "hex": "000000000000010000000100",
-      "what": "id 268 -> COMP: min, max, default"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230C34",
-      "len": 4,
-      "expect_sha256": "a4a4f575e85b5b0329eea82b29d16f476ef83bbfc6a1262570e70cf9f19a75f8",
-      "hex": "444e583a",
-      "what": "id 268: nome lungo 'Compressor On/Off'"
-    },
-    {
-      "section": 3,
-      "addr": "0X40230C3C",
-      "len": 4,
-      "expect_sha256": "e74af4f0d851e0b06fdb42d5d628f09e524e3c4916d9ac290bc7b5264b947fee",
-      "hex": "444e5835",
-      "what": "id 268: nome breve 'COMP'"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F750",
-      "len": 2,
-      "expect_sha256": "f574d5db4143f9e86848c14a1c63b1f91d001289cf3b0a29e64b7336afc642cc",
-      "hex": "2f03",
-      "what": "id 262 (THR) +4: prototipo come 144"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F776",
-      "len": 4,
-      "expect_sha256": "5425a05133920f0ed35f5a0892bec77a49edd9149c544350dfca7fe36e26c183",
-      "hex": "41b9dcd0",
-      "what": "id 262 (THR) +36: manopola come 144"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F7AA",
-      "len": 2,
-      "expect_sha256": "f574d5db4143f9e86848c14a1c63b1f91d001289cf3b0a29e64b7336afc642cc",
-      "hex": "2f04",
-      "what": "id 263 (ATK) +4: prototipo come 122"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F7CA",
-      "len": 4,
-      "expect_sha256": "5425a05133920f0ed35f5a0892bec77a49edd9149c544350dfca7fe36e26c183",
-      "hex": "41b9dc00",
-      "what": "id 263 (ATK) +36: come 122"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F7EA",
-      "len": 4,
-      "expect_sha256": "c48fa300a2a6f81b35da63a95e9885f810e3f3897436096f88010bc0244dcaa2",
-      "hex": "41b9d5d0",
-      "what": "id 263 (ATK) +68: barra come 122"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F7FA",
-      "len": 2,
-      "expect_sha256": "f574d5db4143f9e86848c14a1c63b1f91d001289cf3b0a29e64b7336afc642cc",
-      "hex": "2f03",
-      "what": "id 264 (REL) +4: prototipo come 91"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F81A",
-      "len": 4,
-      "expect_sha256": "5425a05133920f0ed35f5a0892bec77a49edd9149c544350dfca7fe36e26c183",
-      "hex": "41b9dcd0",
-      "what": "id 264 (REL) +36: manopola come 91"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F84A",
-      "len": 2,
-      "expect_sha256": "f574d5db4143f9e86848c14a1c63b1f91d001289cf3b0a29e64b7336afc642cc",
-      "hex": "2f03",
-      "what": "id 265 (MUP) +4: prototipo come 101"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F86E",
-      "len": 4,
-      "expect_sha256": "5425a05133920f0ed35f5a0892bec77a49edd9149c544350dfca7fe36e26c183",
-      "hex": "41b9dcd0",
-      "what": "id 265 (MUP) +36: manopola come 101"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F89A",
-      "len": 2,
-      "expect_sha256": "f574d5db4143f9e86848c14a1c63b1f91d001289cf3b0a29e64b7336afc642cc",
-      "hex": "2f04",
-      "what": "id 266 (RAT) +4: prototipo come 125/126"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F8BE",
-      "len": 4,
-      "expect_sha256": "5425a05133920f0ed35f5a0892bec77a49edd9149c544350dfca7fe36e26c183",
-      "hex": "41b9dc00",
-      "what": "id 266 (RAT) +36: come 125/126"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F8DA",
-      "len": 4,
-      "expect_sha256": "c48fa300a2a6f81b35da63a95e9885f810e3f3897436096f88010bc0244dcaa2",
-      "hex": "41b9d5d0",
-      "what": "id 266 (RAT) +68: barra"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F8EE",
-      "len": 2,
-      "expect_sha256": "f574d5db4143f9e86848c14a1c63b1f91d001289cf3b0a29e64b7336afc642cc",
-      "hex": "2f04",
-      "what": "id 267 (GR) +4: prototipo come 59"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F914",
-      "len": 4,
-      "expect_sha256": "5425a05133920f0ed35f5a0892bec77a49edd9149c544350dfca7fe36e26c183",
-      "hex": "41b9dc00",
-      "what": "id 267 (GR) +36: come IN LR"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F934",
-      "len": 4,
-      "expect_sha256": "c48fa300a2a6f81b35da63a95e9885f810e3f3897436096f88010bc0244dcaa2",
-      "hex": "41b9d5d0",
-      "what": "id 267 (GR) +68: barra come IN LR"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F966",
-      "len": 4,
-      "expect_sha256": "5425a05133920f0ed35f5a0892bec77a49edd9149c544350dfca7fe36e26c183",
-      "hex": "41b9d9f0",
-      "what": "id 268 (COMP) +36: come 115"
-    },
-    {
-      "section": 3,
-      "addr": "0X4018F986",
-      "len": 4,
-      "expect_sha256": "c48fa300a2a6f81b35da63a95e9885f810e3f3897436096f88010bc0244dcaa2",
-      "hex": "41b9d680",
-      "what": "id 268 (COMP) +68: come 115"
-    },
-    {
-      "section": 3,
-      "addr": "0X40195156",
+      "addr": "0X4003A244",
       "len": 6,
-      "expect_sha256": "c3430cd5a85c9889dabf71ed5a5dadfc0a8daa17ddc538659037c2f07697a66b",
-      "hex": "4eb9444e3d46",
-      "what": "pagina SYN della FX track all'avvio: caselle A..G e init (jsr comp_page_stub)"
+      "expect_sha256": "88288e4a1dab8ecf4aee7776abd6983e719d1b733ed323b23ed21bd6528cf5db",
+      "hex": "4ef9444e9bd0",
+      "what": "generic SourcePage draw: scope compressor descriptors and slots to the FX context"
     }
   ]
 }

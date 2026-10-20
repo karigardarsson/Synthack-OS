@@ -46,7 +46,7 @@ Slots are read at draw time: changing them at runtime changes the page (0 = empt
 
 | Id | Stock meaning | Mod use |
 |---|---|---|
-| 262–268 | Digitakt MIDI-track "CC1–CC7 Select" (page never shown, no MIDI CC) | master-comp (virtual, via [vparams](../mods/vparams)) |
+| 262-268 | Syntakt MIDI-track CC1-CC7 Select descriptors | master-comp only while the FX SYN context is active; restored for MIDI pages |
 | 144 | amp delay time | the kit word of 144 stores fx3 |
 | 72 | amp "Delay Time", saved per track, unused | fx3 SND3 (native, per track) |
 | 269, 124 | Digitakt MIDI-track "CC8 Select", reverb routing | beat-repeat RPT1/RPT2 (virtual) |

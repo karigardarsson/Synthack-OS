@@ -16,7 +16,8 @@ Mod area (first 64 KB block of the OS heap, from `modarea_layout.RAM`; unpacked 
 | `+0x0000` | master-comp |
 | `+0x2000` | readable-values |
 | `+0x4000` | beat-repeat |
-| `+0x7E00` | vparams code; `+0x8000` vparams table (32 × 12 B) |
+| +0x6300 | scoped master-comp UI helper |
+| +0x7E00 | vparams code; +0x8000 vparams table (32 x 16 B) |
 | `+0xA000` | fx3 code and data; `+0xE000` fx3 delay line (4 KB) |
 
 Section 3 free fill `0x40338740–0x40339000`: splash, dual-mono, modarea loader (nearly full).
@@ -38,7 +39,7 @@ A hook replaces ≥ 6 bytes of OS code with `jsr ours` (padded with `nop`), and 
 - Replaced `pea` pairs (arguments of the next call): pop the return address, push the arguments, `jmp` back (`fx3_mix_hook`).
 - Replaced `jsr f`: do your work, then `jmp f` with the stack untouched (`fx3_del_hook`).
 - Replaced EMAC instructions: replay them first (`fx3_trk_hook`). If your code uses EMAC, set `MACSR` yourself and leave `ACC0` at 0 (the OS sum routines start from it).
-- One-time setup at boot: hook an instruction of the page initializer (`0x401885D2…`), e.g. a `clr.l` that empties a page slot (`fx3_page_stub`, `comp_page_stub`). Objects built earlier in that initializer are ready.
+- If a descriptor is also a native MIDI parameter, scope ownership at a page/view boundary and restore captured native state when leaving that context.
 
 ## 3. Parameters
 

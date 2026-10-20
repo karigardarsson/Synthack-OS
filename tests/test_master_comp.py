@@ -39,6 +39,8 @@ HOOK, AFTER = 0x4009_053E, 0x4009_0562
 ADC_L, ADC_R = 0x8000_3C50, 0x8000_3CD0
 HW, STACK, RET = 0x5000_2000, 0x5001_0000, 0x5000_8000
 FX_SLOTS = 0x41B9_F950
+PROJECT_PTR, PROJECT, ACTIVE_TRACK = 0x444E_13F4, 0x5000_7000, 0x4001_FF74
+DRAW, DRAW_CONT = 0x4003_A244, 0x4003_A24C
 KIT_PTR, KIT, KIT_BLK = 0x8000_30BC, 0x5000_4000, 70
 GLOB_BLK, GLOBAL_FLAGS = 0x41B9_D3B0, 0x43BD_E444
 WOFF = {"THR": 12, "ATK": 14, "REL": 2, "MUP": 8}      # parole nel blocco esterno
@@ -74,6 +76,8 @@ class Machine:
         uc.mem_map(0x41B9_D000, 0xA000)                     # globale, pagine, oggetti (BSS, fino a id 268)
         uc.mem_map(0x43BD_E000, 0x1000)                     # bit global
         uc.mem_write(FX_SLOTS, struct.pack(">8i", 0, 0, 0, 0, 0, 0, 0, 150))
+        uc.mem_write(PROJECT_PTR, struct.pack(">I", PROJECT))
+        uc.mem_write(ACTIVE_TRACK, bytes((0x70, 12, 0x4e, 0x75)))  # moveq #12,d0 ; rts
         uc.mem_write(KIT_PTR, struct.pack(">I", KIT if kit else 0))
         uc.mem_write(RET, b"\x4e\x75")
         self.emac = UnicornEmac(uc, [int(a, 16) for a in spec.get("emac_sites", [])])
@@ -293,16 +297,93 @@ def test_other_ids_resume_original_code_identically(setup, fn, resume):
     assert states[0] == states[1]
 
 
-def test_page_stub_sets_the_knobs_at_boot(setup):
+@pytest.mark.parametrize("fn,resume", [(GET, 0x4000_D950), (SET, 0x4000_DA3A)])
+def test_midi_ids_resume_native_get_set_without_compressor_dispatch(setup, fn, resume):
+    """IDs 262..268 remain native parameter routes when the selected page is MIDI."""
+    spec, sec3, _ = setup
+    states = []
+    for patched in (False, True):
+        m = Machine(spec if patched else {"patches": [], "emac_sites": []}, sec3)
+        # The stock selector is a tiny function in the fixture: choose a MIDI track.
+        m.uc.mem_write(ACTIVE_TRACK, bytes((0x70, 11, 0x4e, 0x75)))
+        m.uc.ctl_flush_tb()
+        m.call(fn, [0x5000_0100, 262, 0x4000, 1], resume)
+        sp = m.uc.reg_read(UC_M68K_REG_A7)
+        states.append((sp, bytes(m.uc.mem_read(sp, 32)), m.uc.reg_read(UC_M68K_REG_D1),
+                       m.uc.reg_read(UC_M68K_REG_D2), m.uc.reg_read(UC_M68K_REG_D3)))
+    assert states[0] == states[1]
+
+
+def set_active_track(m, spec, track):
+    m.uc.mem_write(ACTIVE_TRACK, bytes((0x70, track & 0xff, 0x4e, 0x75)))
+    m.uc.ctl_flush_tb()
+    return m.call(int(spec["symbols"]["comp_active_context"], 16), [])
+
+
+def test_fx_context_claims_the_knobs_without_a_boot_page_patch(setup):
     spec, sec3, _ = setup
     m = Machine(spec, sec3)
     m.uc.mem_write(FX_SLOTS, struct.pack(">8i", 0, 0, 0, 0, 0, 0, 0, 150))
-    m.uc.reg_write(UC_M68K_REG_D0, 0x1234)
-    m.call(int(spec["symbols"]["comp_page_stub"], 16), [])
+    assert set_active_track(m, spec, 12) == 1
     assert list(struct.unpack(">8i", m.uc.mem_read(FX_SLOTS, 32))) == [*IDS.values(), 150]
-    assert m.uc.reg_read(UC_M68K_REG_D0) == 0x1234
     sec = {int(p["addr"], 16): p for p in spec["patches"] if not p.get("append")}
-    assert 0x4019_5156 in sec                                   # al posto dell'ultimo clr.l delle caselle
+    assert 0x4019_5156 not in sec
+    assert DRAW in sec
+
+
+def invoke_draw(m):
+    m.uc.ctl_flush_tb()
+    m.uc.mem_write(STACK - 4, struct.pack(">I", RET))
+    m.uc.reg_write(UC_M68K_REG_SR, 0x2700)
+    m.uc.reg_write(UC_M68K_REG_A7, STACK - 4)
+    m.uc.emu_start(DRAW, DRAW_CONT, count=100_000)
+    assert m.uc.reg_read(UC_M68K_REG_A7) == STACK - 4 - 80
+
+
+def test_midi_context_restores_native_compressor_ids_and_slots(setup):
+    """The MIDI page receives its exact stock descriptor/object/slot state back."""
+    spec, sec3, _ = setup
+    m = Machine(spec, sec3)
+    before = {}
+    for pos, ident in enumerate(IDS.values()):
+        desc = 0x4022_D59C + 52 * ident
+        obj = OBJS + 84 * ident
+        d = bytes((pos + i) & 0xff for i in range(52))
+        o = bytes((0x80 + pos + i) & 0xff for i in range(84))
+        m.uc.mem_write(desc, d)
+        m.uc.mem_write(obj, o)
+        before[desc] = d
+        before[obj] = o
+    slots = struct.pack(">8I", *(0x11110000 + i for i in range(8)))
+    m.uc.mem_write(FX_SLOTS, slots)
+
+    set_active_track(m, spec, 12)
+    assert bytes(m.uc.mem_read(FX_SLOTS, 32)) != slots
+    assert set_active_track(m, spec, 11) == 0
+    assert bytes(m.uc.mem_read(FX_SLOTS, 32)) == slots
+    for addr, original in before.items():
+        assert bytes(m.uc.mem_read(addr, len(original))) == original
+
+
+def test_draw_hook_claims_on_fx_and_restores_before_midi_draw(setup):
+    """The patched generic SourcePage prologue preserves its caller ABI and scopes ownership."""
+    spec, sec3, _ = setup
+    m = Machine(spec, sec3)
+    stock_slots = struct.pack(">8I", *(0x22220000 + i for i in range(8)))
+    m.uc.mem_write(FX_SLOTS, stock_slots)
+    for r, value in zip(REGS, range(0x71000000, 0x71000000 + len(REGS))):
+        m.uc.reg_write(r, value)
+    marks = [m.uc.reg_read(r) for r in REGS]
+
+    m.uc.mem_write(ACTIVE_TRACK, bytes((0x70, 12, 0x4e, 0x75)))
+    invoke_draw(m)
+    assert list(struct.unpack(">8i", m.uc.mem_read(FX_SLOTS, 32)))[:7] == list(IDS.values())
+    assert [m.uc.reg_read(r) for r in REGS] == marks
+
+    m.uc.mem_write(ACTIVE_TRACK, bytes((0x70, 11, 0x4e, 0x75)))
+    invoke_draw(m)
+    assert bytes(m.uc.mem_read(FX_SLOTS, 32)) == stock_slots
+    assert [m.uc.reg_read(r) for r in REGS] == marks
 
 
 def test_audio_block_leaves_the_page_alone(setup):
@@ -365,8 +446,8 @@ def test_meter_rises_fast_and_falls_slowly(setup):
 
 
 def comp_init(m, spec):
-    """All'avvio lo stub della pagina installa formattatori e disegno."""
-    m.call(int(spec["symbols"]["comp_page_stub"], 16), [])
+    """The active FX context installs the compressor view state on demand."""
+    assert set_active_track(m, spec, 12) == 1
 
 
 def test_init_copies_drive_knob_graphics(setup):
