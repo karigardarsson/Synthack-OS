@@ -11,18 +11,19 @@
     "entries": 32
   },
   "symbols": {
-    "vp_kit": "0x444eb704",
-    "vp_get": "0x444eb724",
-    "vp_set": "0x444eb744",
-    "vp_find": "0x444eb6d0"
+    "vp_kit": "0x444eb736",
+    "vp_get": "0x444eb75a",
+    "vp_set": "0x444eb77e",
+    "vp_find": "0x444eb6d0",
+    "vp_draw_hook": "0x444eb704"
   },
   "patches": [
     {
       "section": 3,
       "addr": "0X4034FE00",
-      "len": 150,
+      "len": 212,
       "append": true,
-      "hex": "43f9444eb8d0721fb051670a43e9001053816cf493c922094e752069000c4a88670a2f094e90225f4a80670470014e7542804e75202f0008670c61c4670861da670470014e752f02747c222f00084ef94000d878202f0008670e61a4670a61ba6706206900044ed02f02222f00084ef94000d950202f0008670e6184670a619a6706206900084ed02f032f02222f000c4ef94000da3a",
+      "hex": "43f9444eb8d0721fb051670a43e9001053816cf493c922094e752069000c4a88670a2f094e90225f4a80670470014e7542804e754fefffe848d7030743f9444eb8d0741f6100ffd443e9001053826cf44cd703074fef00184fefffb048d77cfc4ef94003a24c202f000867106100ff92670a6100ffa6670470014e752f02747c222f00084ef94000d878202f000867126100ff6e670c6100ff826706206900044ed02f02222f00084ef94000d950202f000867126100ff4a670c6100ff5e6706206900084ed02f032f02222f000c4ef94000da3a",
       "ram": "0x444eb6d0",
       "what": "(area mod) vp_kit, vp_get, vp_set"
     },
@@ -31,7 +32,7 @@
       "addr": "0X4000D870",
       "len": 8,
       "expect_sha256": "9543cb23f5dfdfba7a01beb7c6d94be848abc0d9daabf2597886638ffc3b5b29",
-      "hex": "4ef9444eb7044e71",
+      "hex": "4ef9444eb7364e71",
       "what": "aggancio: jmp vp_kit ; nop"
     },
     {
@@ -39,7 +40,7 @@
       "addr": "0X4000D94A",
       "len": 6,
       "expect_sha256": "d6c9f1f60272197a17511f496fc19dd21ddd7df5f1f1ec0cab7a16cad60b0609",
-      "hex": "4ef9444eb724",
+      "hex": "4ef9444eb75a",
       "what": "aggancio: jmp vp_get"
     },
     {
@@ -47,8 +48,16 @@
       "addr": "0X4000DA32",
       "len": 8,
       "expect_sha256": "f537d32566bd64115d10ae86f44d24d947ff5cf58a554cf0b67ab60a34ad6e4d",
-      "hex": "4ef9444eb7444e71",
+      "hex": "4ef9444eb77e4e71",
       "what": "aggancio: jmp vp_set ; nop"
+    },
+    {
+      "section": 3,
+      "addr": "0X4003A244",
+      "len": 6,
+      "expect_sha256": "88288e4a1dab8ecf4aee7776abd6983e719d1b733ed323b23ed21bd6528cf5db",
+      "hex": "4ef9444eb704",
+      "what": "aggancio: jmp vp_draw_hook"
     }
   ]
 }

@@ -17,6 +17,7 @@ Mod area (first 64 KB block of the OS heap, from `modarea_layout.RAM`; unpacked 
 | `+0x2000` | readable-values |
 | `+0x4000` | beat-repeat |
 | +0x6300 | scoped master-comp UI helper |
+| +0x6900 | scoped beat-repeat UI helper |
 | +0x7E00 | vparams code; +0x8000 vparams table (32 x 16 B) |
 | `+0xA000` | fx3 code and data; `+0xE000` fx3 delay line (4 KB) |
 
@@ -45,7 +46,7 @@ A hook replaces ≥ 6 bytes of OS code with `jsr ours` (padded with `nop`), and 
 
 Logical id → descriptor (`0x4022D59C + 52·id`: group, internal id, min/max/default, MIDI, names at +40/+48). An id without a page or a MIDI CC is not necessarily free: if another descriptor has the same group and internal id, it is an **alias** that the OS can put on a page in some modes (#3). `tests/test_id_audit.py` rejects aliases, MIDI CC/NRPN and ids shared between mods; ids in use are listed in [ui-parameters](ui-parameters.md#hidden-ids-used-by-the-mods). Patch min/max/default and the name pointers in the descriptor to make the id yours.
 
-**Virtual parameters** ([vparams](../mods/vparams)): register `{id, get, set}` in the table and the three kit functions (is-kit, get, set) call your functions for that id. Values are 0…0x7F00 (127 × 256). `set` must request a redraw: `*(*0x444E1334 + 96) = 1`.
+**Virtual parameters** ([vparams](../mods/vparams)): register an id, getter, setter, and optional context guard. The three kit functions call a virtual handler only when its guard accepts the active context; the shared SourcePage boundary runs guards before drawing so they can restore native descriptor ownership outside their page. Values are 0..0x7F00. Setters must request a redraw.
 
 **Saving.** Two kinds of spare storage, both saved by the OS without knowing:
 

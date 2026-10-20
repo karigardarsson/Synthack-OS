@@ -195,14 +195,6 @@
       "hex": "010c0000444e3da4444e3e06444e9bf4",
       "ram": "0x444eb930",
       "what": "vparams[6]: id 268 -> master-comp COMP (scoped)"
-    },
-    {
-      "section": 3,
-      "addr": "0X4003A244",
-      "len": 6,
-      "expect_sha256": "88288e4a1dab8ecf4aee7776abd6983e719d1b733ed323b23ed21bd6528cf5db",
-      "hex": "4ef9444e9bd0",
-      "what": "generic SourcePage draw: scope compressor descriptors and slots to the FX context"
     }
   ]
 }

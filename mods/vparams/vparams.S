@@ -5,7 +5,7 @@
         .equ    VP_N,           32
 
         .text
-        .globl  vp_kit, vp_get, vp_set
+        .globl  vp_kit, vp_get, vp_set, vp_draw_hook
 
 vp_find:
         lea     VP_TABLE,%a1
@@ -33,12 +33,30 @@ vp_guard:
 2:      clr.l   %d0
         rts
 
+| The generic SourcePage prologue is a safe ownership boundary: run every
+| registered scope predicate, then replay the exact displaced prologue.
+| Guard callbacks are UI-only and may capture or restore descriptor state.
+vp_draw_hook:
+        lea     -24(%sp),%sp
+        movem.l %d0-%d2/%a0-%a1,(%sp)
+        lea     VP_TABLE,%a1
+        moveq   #VP_N-1,%d2
+3:      bsr.w   vp_guard
+        lea     16(%a1),%a1
+        subq.l  #1,%d2
+        bge.s   3b
+        movem.l (%sp),%d0-%d2/%a0-%a1
+        lea     24(%sp),%sp
+        lea     -80(%sp),%sp
+        movem.l %d2-%d7/%a2-%a6,(%sp)
+        jmp     0x4003A24C
+
 vp_kit:
         move.l  8(%sp),%d0
         beq.s   9f
-        bsr.s   vp_find
+        bsr.w   vp_find
         beq.s   9f
-        bsr.s   vp_guard
+        bsr.w   vp_guard
         beq.s   9f
         moveq   #1,%d0
         rts
@@ -50,9 +68,9 @@ vp_kit:
 vp_get:
         move.l  8(%sp),%d0
         beq.s   9f
-        bsr.s   vp_find
+        bsr.w   vp_find
         beq.s   9f
-        bsr.s   vp_guard
+        bsr.w   vp_guard
         beq.s   9f
         movea.l 4(%a1),%a0
         jmp     (%a0)
@@ -63,9 +81,9 @@ vp_get:
 vp_set:
         move.l  8(%sp),%d0
         beq.s   9f
-        bsr.s   vp_find
+        bsr.w   vp_find
         beq.s   9f
-        bsr.s   vp_guard
+        bsr.w   vp_guard
         beq.s   9f
         movea.l 8(%a1),%a0
         jmp     (%a0)

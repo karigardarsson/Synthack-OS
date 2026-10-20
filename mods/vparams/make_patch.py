@@ -28,7 +28,8 @@ CODE = RAM + 0x7E00                     # codice di vparams
 VP_TABLE, VP_N = RAM + 0x8000, 32
 HOOKS = [(0x4000_D870, "2f02747c222f0008", "vp_kit"),
          (0x4000_D94A, "2f02222f0008", "vp_get"),
-         (0x4000_DA32, "2f032f02222f000c", "vp_set")]
+         (0x4000_DA32, "2f032f02222f000c", "vp_set"),
+         (0x4003_A244, "4fefffb048d7", "vp_draw_hook")]
 WSL_BINUTILS = "~/tools/m68k/root"
 
 
@@ -81,7 +82,7 @@ def main() -> None:
                            "e tabella di registrazione in RAM.",
             "generated_by": "mods/vparams/make_patch.py",
             "layout": {"table": f"{VP_TABLE:#010x}", "entries": VP_N},
-            "symbols": {k: f"{syms[k]:#010x}" for k in ("vp_kit", "vp_get", "vp_set", "vp_find")},
+            "symbols": {k: f"{syms[k]:#010x}" for k in ("vp_kit", "vp_get", "vp_set", "vp_find", "vp_draw_hook")},
             "patches": patches}
     (HERE / "patch.json").write_text(json.dumps(spec, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"patch.json: {len(blob)} B a {CODE:#x}; tabella a {VP_TABLE:#x}")

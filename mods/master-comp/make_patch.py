@@ -248,8 +248,6 @@ def main() -> None:
     for slot, (n, _, i, _) in enumerate(PARAMS):      # parametri virtuali (mods/vparams), posti 0..6
         ui.append(vparams.entry(VP_SLOT0 + slot, i, syms["get_hook"], syms["set_hook"], f"master-comp {n}", ui_syms["comp_active_context"]))
     defaults = {"THR": a.thr, "ATK": a.atk, "REL": a.rel, "MUP": a.mup, "RAT": a.rat * RAT_STEP, "GR": 0, "COMP": 0x100}
-    ui.append(fixed(DRAW_HOOK, struct.pack(">HI", 0x4EF9, ui_syms["comp_draw_hook"]),
-                    "generic SourcePage draw: scope compressor descriptors and slots to the FX context", DRAW_ORIG))
 
     primary_symbols = {
         "comp_hook", "scale", "k_const", "k_state", "k_logt", "k_expt", "k_fallback",

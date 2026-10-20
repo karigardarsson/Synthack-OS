@@ -327,8 +327,10 @@ def test_fx_context_claims_the_knobs_without_a_boot_page_patch(setup):
     assert set_active_track(m, spec, 12) == 1
     assert list(struct.unpack(">8i", m.uc.mem_read(FX_SLOTS, 32))) == [*IDS.values(), 150]
     sec = {int(p["addr"], 16): p for p in spec["patches"] if not p.get("append")}
+    vp = json.loads((ROOT / "mods" / "vparams" / "patch.json").read_text(encoding="utf-8"))
+    vp_sec = {int(p["addr"], 16): p for p in vp["patches"] if not p.get("append")}
     assert 0x4019_5156 not in sec
-    assert DRAW in sec
+    assert DRAW not in sec and DRAW in vp_sec
 
 
 def invoke_draw(m):
@@ -384,6 +386,31 @@ def test_draw_hook_claims_on_fx_and_restores_before_midi_draw(setup):
     invoke_draw(m)
     assert bytes(m.uc.mem_read(FX_SLOTS, 32)) == stock_slots
     assert [m.uc.reg_read(r) for r in REGS] == marks
+
+
+def test_shared_vparams_draw_scopes_compressor_and_beat_repeat_together(setup):
+    """The single draw hook claims both FX-only pages and restores both on MIDI."""
+    spec, sec3, _ = setup
+    m = Machine(spec, sec3)
+    br = json.loads((ROOT / "mods" / "beat-repeat" / "patch.json").read_text(encoding="utf-8"))
+    for patch in br["patches"]:
+        dst = int(patch["ram"], 16) if patch.get("append") else int(patch["addr"], 16)
+        m.uc.mem_write(dst, bytes.fromhex(patch["hex"]))
+
+    comp_slots = struct.pack(">8I", *(0x22220000 + i for i in range(8)))
+    trig_slots = struct.pack(">2I", 0x33330001, 0x33330002)
+    m.uc.mem_write(FX_SLOTS, comp_slots)
+    m.uc.mem_write(0x41B9_F924, trig_slots)
+
+    m.uc.mem_write(ACTIVE_TRACK, bytes((0x70, 12, 0x4e, 0x75)))
+    invoke_draw(m)
+    assert list(struct.unpack(">8I", m.uc.mem_read(FX_SLOTS, 32)))[:7] == list(IDS.values())
+    assert struct.unpack(">2I", m.uc.mem_read(0x41B9_F924, 8)) == (269, 124)
+
+    m.uc.mem_write(ACTIVE_TRACK, bytes((0x70, 11, 0x4e, 0x75)))
+    invoke_draw(m)
+    assert bytes(m.uc.mem_read(FX_SLOTS, 32)) == comp_slots
+    assert bytes(m.uc.mem_read(0x41B9_F924, 8)) == trig_slots
 
 
 def test_audio_block_leaves_the_page_alone(setup):

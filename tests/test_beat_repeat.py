@@ -35,7 +35,9 @@ MODS = [ROOT / "mods" / m / "patch.json" for m in ("vparams", "beat-repeat")]
 pytestmark = pytest.mark.skipif(not (SY.exists() and all(p.exists() for p in MODS)), reason="OS o patch assenti")
 
 LOAD, STACK, RET = 0x4000_0400, 0x5000_8000, 0x5000_F000
-PAT, STEPS, UI = 0x5000_1000, 0x5000_0800, 0x5000_0C00     # pattern finto, step[13], interfaccia
+PAT, STEPS, UI = 0x5000_1000, 0x5000_0800, 0x5000_0C00
+PROJECT, PROJECT_PTR = 0x5000_2800, 0x444E_13F4
+SOURCE_DRAW, SOURCE_DRAW_CONT = 0x4003_A244, 0x4003_A24C     # pattern finto, step[13], interfaccia
 VIEW, TRACK, EV = 0x5000_2000, 0x5000_2300, 0x5000_2400       # KeyboardView finta, traccia attiva, evento
 RPT1, RPT2 = 269, 124
 HANDLED, NATIVE, LOWER = 0x4002_E954, 0x4002_EA9A, 0x4002_EBA6  # uscite del ramo dei tasti 13-16
@@ -65,6 +67,7 @@ class Machine:
                 uc.mem_write(int(p["ram"], 16) if p.get("append") else int(p["addr"], 16), bytes.fromhex(p["hex"]))
         uc.mem_write(RET, b"\x4e\x75")
         uc.mem_write(0x444E_1334, struct.pack(">I", UI))
+        uc.mem_write(PROJECT_PTR, struct.pack(">I", PROJECT))
         uc.mem_write(PAT + 136057, b"\x00")                      # lunghezza unica del pattern
         self.length(16)
         # traccia attiva (0x4001FF74) -> move.l TRACK,d0 ; rts ; testo (0x400F8C18) -> rts, argomenti letti
@@ -140,6 +143,15 @@ class Machine:
 
     def held(self):
         return self.uc.mem_read(self.sym["br_held"], 1)[0]
+
+    def source_draw(self):
+        """Run the patched generic SourcePage draw prologue through its stock continuation."""
+        uc = self.uc
+        uc.mem_write(STACK - 4, struct.pack(">I", RET))
+        uc.reg_write(UC_M68K_REG_SR, 0x2700)
+        uc.reg_write(UC_M68K_REG_A7, STACK - 4)
+        uc.emu_start(SOURCE_DRAW, SOURCE_DRAW_CONT, count=100_000)
+        assert uc.reg_read(UC_M68K_REG_A7) == STACK - 4 - 80
 
     def hook(self, t):
         """Fine dell'iterazione della traccia t nel tick, come a 0x4008D152 (d2 gia' incrementato)."""
@@ -310,16 +322,14 @@ def test_texts(m):
     assert out == ["1/16", "1/8", "3/16", "1/4", "1/2", "1BAR"]
 
 
-def test_page_slots_set_at_boot(m):
-    m.uc.reg_write(UC_M68K_REG_D0, 0x1234)
-    m.call(m.sym["br_page_stub"], [])
+def test_fx_trig_slots_are_claimed_at_the_shared_page_boundary(m):
+    m.source_draw()
     assert struct.unpack(">II", m.uc.mem_read(0x41B9_F924, 8)) == (RPT1, RPT2)
-    assert m.uc.reg_read(UC_M68K_REG_D0) == 0x1234
 
 
 def test_patched_bytes(m):
     want = {0x4008_D152: "5283528e528d", 0x4002_EA92: "7223b2806c00010e", 0x4000_B420: "4eb94000839e",
-            0x4019_50F0: "42b941b9f928", 0x4019_50A8: "42b941b9f924"}
+            SOURCE_DRAW: "4fefffb048d7", 0x4019_50F0: "42b941b9f928", 0x4019_50A8: "42b941b9f924"}
     sec3 = eft.unpack(SY, ROOT / "unpacked" / SY.stem, ids=[3])[3].read_bytes()
     for a, orig in want.items():
         assert sec3[a - LOAD:a - LOAD + len(orig) // 2].hex() == orig
@@ -342,3 +352,29 @@ def test_rates_saved_in_the_kit(m):
     assert m.call(GET, [0x5000_0000, RPT1]) == 2 << 8 and m.call(GET, [0x5000_0000, RPT2]) == 3 << 8
     m.uc.mem_write(kit_b + 110, bytes([0xFF, 0xFF]))            # valori fuori scala: limitati
     assert m.call(GET, [0x5000_0000, RPT1]) == 5 << 8
+
+
+def test_midi_context_restores_sel8_and_uses_the_native_virtual_route(m):
+    """Leaving FX restores the exact CC8 descriptor/object/slot state before MIDI AMP draws."""
+    before = {}
+    for pos, pid in enumerate((RPT1, RPT2)):
+        desc, obj = 0x4022_D59C + 52 * pid, 0x41B9_FA24 + 84 * pid
+        d = bytes((0x20 + pos + i) & 0xff for i in range(52))
+        o = bytes((0x80 + pos + i) & 0xff for i in range(84))
+        m.uc.mem_write(desc, d)
+        m.uc.mem_write(obj, o)
+        before[desc], before[obj] = d, o
+    slots = struct.pack(">II", 0x11110001, 0x11110002)
+    m.uc.mem_write(0x41B9_F924, slots)
+
+    m.track(12)
+    m.source_draw()
+    assert struct.unpack(">II", m.uc.mem_read(0x41B9_F924, 8)) == (RPT1, RPT2)
+
+    m.track(11)
+    m.source_draw()
+    assert bytes(m.uc.mem_read(0x41B9_F924, 8)) == slots
+    for addr, original in before.items():
+        assert bytes(m.uc.mem_read(addr, len(original))) == original
+    assert m.call(GET, [0x5000_0000, RPT1], stop=0x4000_D950)[0] == "cont"
+    assert m.call(SET, [0x5000_0000, RPT1, 0x100, 1], stop=0x4000_DA3A)[0] == "cont"
